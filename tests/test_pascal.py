@@ -24,11 +24,29 @@ from pyvision.datasets import pascal
 from pyvision.datasets.pascal import input_producer as pinput
 
 
+def _assert_data_dir():
+    try:
+        os.environ['TV_DIR_DATA']
+        return True
+    except KeyError:
+        logging.warning("Data dir not given. Skipping all dataset tests.")
+        logging.info("Set $TV_DIR_DATA to perform additional tests.")
+        return False
+    pass
+
+
 def test_pascal():
     conf = pinput.default_conf()
 
-    data_dir = '/home/mifs/mttt2/cvfs/DATA'
-    test = pinput.InputProducer(conf, data_dir)
+    if not _assert_data_dir():
+        pass
+
+    if not os.path.exists(os.environ['TV_DIR_DATA'] + "/VOC2012"):
+        logging.warning("Dir: {} does not exist."
+                        .format(os.environ['TV_DIR_DATA'] + "/VOC2012"))
+        logging.info("Skipping pascal voc test.")
+
+    test = pinput.InputProducer(conf)
 
     next(test)
 

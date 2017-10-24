@@ -68,10 +68,26 @@ def default_conf():
 class InputProducer():
     """docstring for InputProducer"""
 
-    def __init__(self, conf, data_dir, phase='train'):
+    def __init__(self, conf, data_dir=None, phase='train'):
 
         self.phase = phase
-        self.data_dir = data_dir
+
+        if data_dir is None:
+            try:
+                self.data_dir = os.environ['TV_DIR_DATA']
+            except KeyError:
+                logging.error("No Data dir given.")
+                logging.info("Set $TV_DIR_DATA or pass data_dir"
+                             " as keyword arg.")
+                raise ValueError
+            pass
+        else:
+            self.data_dir = data_dir
+
+        if not os.path.exists(self.data_dir + "/VOC2012"):
+            logging.error("Dir: {} does not exist."
+                          .format(self.data_dir + "/VOC2012"))
+            raise ValueError
 
         self.conf = conf
 
