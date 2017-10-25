@@ -23,6 +23,15 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     stream=sys.stdout)
 
 
+from pyvision import visualization as vis
+
+
+def get_visualizer():
+    myvis = vis.SegmentationVisualizer(color_list=color_list,
+                                       name_list=voc_names)
+    return myvis
+
+
 def pascal_classes():
     classes = {'aeroplane': 1, 'bicycle': 2, 'bird': 3, 'boat': 4,
                'bottle': 5, 'bus': 6, 'car': 7, 'cat': 8,
