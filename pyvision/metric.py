@@ -22,6 +22,8 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
 
 from collections import OrderedDict
 
+from pyvision import pretty_printer as pp
+
 
 class SegmentationMetric(object):
     """docstring for SegmentationMetric"""
@@ -35,9 +37,11 @@ class SegmentationMetric(object):
         self.tns = np.zeros([num_classes])
         self.fns = np.zeros([num_classes])
 
+        self.times = []
+
         self.count = 0
 
-    def add(self, gt, mask, prediction):
+    def add(self, gt, mask, prediction, time=None):
         self.count = self.count + np.sum(mask)
         relevant_classes = set(np.unique(prediction)).union(np.unique(gt))
         for cl_id in relevant_classes:
@@ -56,6 +60,9 @@ class SegmentationMetric(object):
             self.fns[cl_id] = self.fns[cl_id] + fn
             self.tns[cl_id] = self.tns[cl_id] + tn
 
+            if time is not None:
+                self.times.append(time)
+
         return
 
     def get_iou_dict(self):
@@ -72,7 +79,7 @@ class SegmentationMetric(object):
 
         return result_dict
 
-    def compute_miou(self, ignore_first=False):
+    def compute_miou(self, ignore_first=True):
 
         ious = self.tps / (self.tps + self.fps + self.fns)
 
@@ -81,84 +88,29 @@ class SegmentationMetric(object):
 
         return np.mean(ious)
 
-    def get_accuracy(self, ignore_first=False):
+    def get_accuracy(self, ignore_first=True):
 
         return np.sum(self.tps) / self.count
 
+    def get_pp_lists(self, ignore_first=True, time_unit='s'):
+        crf_dict = self.get_iou_dict()
 
-class SegmentationVisualizer(object):
-    """docstring for label_converter"""
-    def __init__(self, color_list=None, name_list=None,
-                 mode='RGB'):
-        super(SegmentationVisualizer, self).__init__()
-        self.color_list = color_list
-        self.name_list = name_list
+        crf_dict['class_seperator'] = pp.NEW_TABLE_LINE_MARKER
 
-        self.mask_color = [255, 255, 255]
+        if len(self.times) > 0:
+            # pretty printer will multiply all values with 100
+            # in order to convert metrics [0, 1] to [0, 100]
+            # so times (in seconds) needs to be divided by 100.
+            if time_unit == 's':
+                crf_dict['speed [s]'] = sum(self.times) / len(self.times) / 100
+            elif time_unit == 'ms':
+                crf_dict['speed [s]'] = 10 * sum(self.times) / len(self.times)
+            else:
+                raise ValueError
+        crf_dict['accuracy'] = self.get_accuracy(ignore_first=ignore_first)
+        crf_dict['miou'] = self.compute_miou(ignore_first=ignore_first)
 
-        if mode == 'RGB':
-            self.chan = 3
-
-    def id2color(self, id_image, mask=None):
-
-        shape = id_image.shape
-        gt_out = np.zeros([shape[0], shape[1], self.chan], dtype=np.int32)
-        id_image
-
-        for train_id, color in enumerate(self.color_list):
-            c_mask = id_image == train_id
-            c_mask = c_mask.reshape(c_mask.shape + tuple([1]))
-            gt_out = gt_out + color * c_mask
-
-        if mask is not None:
-            mask = mask.reshape(mask.shape + tuple([1]))
-            bg_color = [0, 0, 0]
-            mask2 = np.all(gt_out == bg_color, axis=2)
-            mask2 = mask2.reshape(mask2.shape + tuple([1]))
-            gt_out = gt_out + mask2 * (self.mask_color * (1 - mask))
-
-        return gt_out
-
-    def pred2color(self, pred_image, mask=None):
-
-        color_image = np.dot(pred_image, self.color_list)
-
-        return color_image
-
-    def color2id(self, color_gt):
-        assert(False)
-        shape = color_gt.shape
-        gt_reshaped = np.zeros([shape[0], shape[1]], dtype=np.int32)
-        mask = np.zeros([shape[0], shape[1]], dtype=np.int32)
-
-        for train_id, color in enumerate(self.color_list):
-            gt_label = np.all(color_gt == color, axis=2)
-            mask = mask + gt_label
-            gt_reshaped = gt_reshaped + 10 * train_id * gt_label
-
-        assert(np.max(mask) == 1)
-        np.unique(gt_reshaped)
-        assert(np.max(gt_reshaped) <= 200)
-
-        gt_reshaped = gt_reshaped + 255 * (1 - mask)
-        return gt_reshaped
-
-    def underlay2(self, image, gt_image, labels):
-        # TODO
-        color_img = self.id2color(gt_image)
-        color_labels = self.id2color(labels)
-
-        output = np.concatenate((image, color_img, color_labels), axis=0)
-
-        return output
-
-    def overlay(self, image, gt_image):
-        # TODO
-        color_img = self.id2color((gt_image))
-        output = 0.4 * color_img[:, :] + 0.6 * image
-
-        return output
-
+        return crf_dict.keys(), crf_dict.values()
 
 if __name__ == '__main__':
     logging.info("Hello World.")
