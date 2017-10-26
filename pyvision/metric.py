@@ -108,7 +108,7 @@ class SegmentationMetric(object):
             else:
                 raise ValueError
         crf_dict['accuracy'] = self.get_accuracy(ignore_first=ignore_first)
-        crf_dict['miou'] = self.compute_miou(ignore_first=ignore_first)
+        crf_dict['mIoU'] = self.compute_miou(ignore_first=ignore_first)
 
         return crf_dict.keys(), crf_dict.values()
 
