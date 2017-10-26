@@ -20,6 +20,71 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
 
+from collections import OrderedDict
+
+
+class SegmentationMetric(object):
+    """docstring for SegmentationMetric"""
+    def __init__(self, num_classes, name_list=None):
+        super(SegmentationMetric, self).__init__()
+        self.num_classes = num_classes
+        self.name_list = name_list
+
+        self.tps = np.zeros([num_classes])
+        self.fps = np.zeros([num_classes])
+        self.tns = np.zeros([num_classes])
+        self.fns = np.zeros([num_classes])
+
+        self.count = 0
+
+    def add(self, gt, mask, prediction):
+        self.count = self.count + np.sum(mask)
+        relevant_classes = set(np.unique(prediction)).union(np.unique(gt))
+        for cl_id in relevant_classes:
+            pos = gt == cl_id
+            pred = prediction == cl_id
+
+            tp = np.sum(pos * pred * mask)
+            fp = np.sum((1 - pos) * pred * mask)
+            fn = np.sum(pos * (1 - pred) * mask)
+            tn = np.sum((1 - pos) * (1 - pred) * mask)
+
+            assert(tp + fp + fn + tn == np.sum(mask))
+
+            self.tps[cl_id] = self.tps[cl_id] + tp
+            self.fps[cl_id] = self.fps[cl_id] + fp
+            self.fns[cl_id] = self.fns[cl_id] + fn
+            self.tns[cl_id] = self.tns[cl_id] + tn
+
+        return
+
+    def get_iou_dict(self):
+
+        if self.name_list is None:
+            name_list = range(self.num_classes)
+        else:
+            name_list = self.name_list
+
+        ious = self.tps / (self.tps + self.fps + self.fns)
+        assert(len(name_list) == len(ious))
+
+        result_dict = OrderedDict(zip(name_list, ious))
+
+        return result_dict
+
+    def compute_miou(self, ignore_first=False):
+
+        ious = self.tps / (self.tps + self.fps + self.fns)
+
+        if ignore_first:
+            ious = ious[1:]
+
+        return np.mean(ious)
+
+    def get_accuracy(self, ignore_first=False):
+
+        return np.sum(self.tps) / self.count
+
 
 class SegmentationVisualizer(object):
     """docstring for label_converter"""
@@ -58,10 +123,6 @@ class SegmentationVisualizer(object):
 
         color_image = np.dot(pred_image, self.color_list)
 
-        if mask is not None:
-
-            color_image = mask * color_image + (1 - mask) * self.mask_color
-
         return color_image
 
     def color2id(self, color_gt):
@@ -97,3 +158,7 @@ class SegmentationVisualizer(object):
         output = 0.4 * color_img[:, :] + 0.6 * image
 
         return output
+
+
+if __name__ == '__main__':
+    logging.info("Hello World.")
