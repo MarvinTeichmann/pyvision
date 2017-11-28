@@ -33,12 +33,8 @@ def set_gpus_to_use(args):
         if 'TV_USE_GPUS' in os.environ:
             if os.environ['TV_USE_GPUS'] == 'force':
                 logging.error('Please specify a GPU.')
-                logging.error('Usage tv-train --gpus <ids>')
+                logging.error('Usage {} --gpus <ids>'.format(sys.argv[0]))
                 exit(1)
-            else:
-                gpus = os.environ['TV_USE_GPUS']
-                logging.info("GPUs are set to: %s", gpus)
-                os.environ['CUDA_VISIBLE_DEVICES'] = gpus
     else:
         logging.info("GPUs are set to: %s", args.gpus)
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpus
