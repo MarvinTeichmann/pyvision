@@ -60,6 +60,9 @@ class SegmentationVisualizer(object):
 
         if mask is not None:
 
+            if len(mask.shape) == 2:
+                mask = mask.reshape(mask.shape + tuple([1]))
+
             color_image = mask * color_image + (1 - mask) * self.mask_color
 
         return color_image
