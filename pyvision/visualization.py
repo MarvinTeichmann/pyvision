@@ -34,7 +34,15 @@ class SegmentationVisualizer(object):
         if mode == 'RGB':
             self.chan = 3
 
-    def id2color(self, id_image, mask=None):
+    def id2color(self, id_image, mask=None, ignore_idx=-100):
+        """
+        Input: Int Array of shape [height, width]
+            Containing Integers 0 <= i <= num_classes.
+        """
+
+        if mask is None:
+            if np.any(id_image == ignore_idx):
+                mask = id_image == ignore_idx
 
         shape = id_image.shape
         gt_out = np.zeros([shape[0], shape[1], self.chan], dtype=np.int32)
