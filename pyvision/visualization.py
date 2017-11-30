@@ -41,8 +41,8 @@ class SegmentationVisualizer(object):
         """
 
         if mask is None:
-            if np.any(id_image == ignore_idx):
-                mask = id_image == ignore_idx
+            if np.any(id_image != ignore_idx):
+                mask = id_image != ignore_idx
 
         shape = id_image.shape
         gt_out = np.zeros([shape[0], shape[1], self.chan], dtype=np.int32)
