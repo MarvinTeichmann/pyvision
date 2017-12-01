@@ -41,10 +41,14 @@ class SegmentationMetric(object):
 
         self.count = 0
 
-    def add(self, gt, mask, prediction, time=None):
+    def add(self, gt, mask, prediction, time=None, ignore_idx=None):
         self.count = self.count + np.sum(mask)
         relevant_classes = set(np.unique(prediction)).union(np.unique(gt))
         for cl_id in relevant_classes:
+
+            if cl_id == ignore_idx:
+                continue
+
             pos = gt == cl_id
             pred = prediction == cl_id
 
