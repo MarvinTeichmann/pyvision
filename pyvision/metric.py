@@ -98,7 +98,7 @@ class SegmentationMetric(object):
 
     def get_pp_names(self, time_unit='s', summary=False):
         if not summary:
-            ret_list = self.name_list
+            ret_list = self.name_list.copy()
             ret_list.append('class_seperator')
         else:
             ret_list = []
