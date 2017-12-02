@@ -96,6 +96,53 @@ class SegmentationMetric(object):
 
         return np.sum(self.tps) / self.count
 
+    def get_pp_names(self, time_unit='s', summary=False):
+        if not summary:
+            ret_list = self.name_list
+            ret_list.append('class_seperator')
+        else:
+            ret_list = []
+
+        if len(self.times) > 0:
+            ret_list.append("speed [{}]".format(time_unit))
+
+        ret_list.append('accuracy')
+        ret_list.append('mIoU')
+
+        return ret_list
+
+    def get_pp_values(self, ignore_first=True,
+                      time_unit='s', summary=False):
+
+        ious = self.tps / (self.tps + self.fps + self.fns)
+
+        if not summary:
+            values = list(ious)
+            values.append(pp.NEW_TABLE_LINE_MARKER)
+        else:
+            values = []
+
+        if ignore_first:
+            ious = ious[1:]
+
+        miou = np.mean(ious)
+
+        if len(self.times) > 0:
+            # pretty printer will multiply all values with 100
+            # in order to convert metrics [0, 1] to [0, 100]
+            # so times (in seconds) needs to be divided by 100.
+            if time_unit == 's':
+                values.append(sum(self.times) / len(self.times) / 100)
+            elif time_unit == 'ms':
+                values.append(10 * sum(self.times) / len(self.times))
+            else:
+                raise ValueError
+
+        values.append(self.get_accuracy(ignore_first=ignore_first))
+        values.append(miou)
+
+        return values
+
     def get_pp_lists(self, ignore_first=True, time_unit='s'):
         crf_dict = self.get_iou_dict()
 
@@ -108,7 +155,7 @@ class SegmentationMetric(object):
             if time_unit == 's':
                 crf_dict['speed [s]'] = sum(self.times) / len(self.times) / 100
             elif time_unit == 'ms':
-                crf_dict['speed [s]'] = 10 * sum(self.times) / len(self.times)
+                crf_dict['speed [ms]'] = 10 * sum(self.times) / len(self.times)
             else:
                 raise ValueError
         crf_dict['accuracy'] = self.get_accuracy(ignore_first=ignore_first)

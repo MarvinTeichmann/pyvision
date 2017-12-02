@@ -52,6 +52,25 @@ def get_color_entry(val, args=None):
 NEW_TABLE_LINE_MARKER = -111
 
 
+class TablePrinter():
+
+    def __init__(self, row_names, color_results=True):
+        self.row_names = row_names
+        self.columns = []
+        self.col_names = []
+        self.color = color_results
+
+    def add_column(self, values, name):
+        self.col_names.append(name)
+        assert(len(values) == len(self.row_names))
+
+        self.columns.append(values)
+
+    def print_table(self):
+        pretty_print_table(self.row_names, self.columns, self.col_names,
+                           color_results=self.color)
+
+
 def pretty_print_table(names, value_list, header_names,
                        step=None, color_results=True):
 
