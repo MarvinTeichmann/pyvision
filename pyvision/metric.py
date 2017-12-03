@@ -143,6 +143,14 @@ class SegmentationMetric(object):
 
         return values
 
+    def get_pp_dict(self, ignore_first=True, time_unit='s', summary=False):
+        names = self.get_pp_names(time_unit=time_unit, summary=summary)
+        values = self.get_pp_values(ignore_first=ignore_first,
+                                    time_unit=time_unit,
+                                    summary=summary)
+
+        return OrderedDict(zip(names, values))
+
     def get_pp_lists(self, ignore_first=True, time_unit='s'):
         crf_dict = self.get_iou_dict()
 
