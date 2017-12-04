@@ -54,7 +54,7 @@ def get_annotation_points(smoothed):
     return [p1, p2, p3]
 
 
-def plot_dot_smoothed(steps, plot_data, names):
+def plot_dot_smoothed(steps, plot_data, names, plot_smoothed=True):
 
     if len(steps) != len(names):
         steps = [steps for i in range(len(names))]
@@ -75,8 +75,10 @@ def plot_dot_smoothed(steps, plot_data, names):
         # Do plotting
         ax.plot(mysteps, p_data, marker=".", linestyle=' ',
                 label=name + " (raw)", color=color)
-        ax.plot(mysteps, smoothed,
-                label=name + " (smooth)", color=color)
+
+        if plot_smoothed:
+            ax.plot(mysteps, smoothed,
+                    label=name + " (smooth)", color=color)
 
         off_1 = 0.5
         # off_2 = 2 + 0.5 * i
