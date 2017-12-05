@@ -54,7 +54,7 @@ def get_annotation_points(smoothed):
     return [p1, p2, p3]
 
 
-def plot_dot_smoothed(steps, plot_data, names, plot_smoothed=True):
+def plot_dot_smoothed(steps, plot_data, names, plot_smoothed=True, title=None):
 
     if len(steps) != len(names):
         steps = [steps for i in range(len(names))]
@@ -80,24 +80,28 @@ def plot_dot_smoothed(steps, plot_data, names, plot_smoothed=True):
             ax.plot(mysteps, smoothed,
                     label=name + " (smooth)", color=color)
 
-        off_1 = 0.5
-        # off_2 = 2 + 0.5 * i
-        off_2 = 2
-        for x_ann, y_ann, name in get_annotation_points(smoothed):
-            off_1 = - off_1
-            off_2 = - off_2
+            off_1 = 0.5
+            off_2 = 2 + 0.5 * i
+            # off_2 = 2
+            for x_ann, y_ann, name in get_annotation_points(smoothed):
+                off_1 = - off_1
+                off_2 = - off_2
 
-            ax.plot([x_ann], [y_ann], 'o', color='red')
+                ax.plot([x_ann], [y_ann], 'o', color='red')
 
-            ax.annotate('{}: {:.2f}'.format(name, y_ann),
-                        xy=(x_ann, y_ann - off_1),
-                        xytext=(x_ann, y_ann - off_2), color=color,
-                        size=10,
-                        horizontalalignment='center',
-                        arrowprops=dict(arrowstyle="->"))
+                ax.annotate('{}: {:.2f}'.format(name, y_ann),
+                            xy=(x_ann, y_ann - off_1),
+                            xytext=(x_ann, y_ann - off_2), color=color,
+                            size=10,
+                            horizontalalignment='center',
+                            arrowprops=dict(arrowstyle="->"))
+
+        if title is not None:
+            ax.set_title(title)
 
         ax.set_xlabel('Epoch')
         ax.set_ylabel('Score [%]')
+        # ax.legend(loc=0)
         ax.legend(loc=0)
 
 if __name__ == '__main__':
