@@ -91,7 +91,7 @@ class InputProducer():
 
         self.conf = conf
 
-        self.names = ['images', 'labels', 'masks', 'tags']
+        self.names = ['images', 'labels', 'masks', 'load_dict']
 
         assert(phase == 'train' or phase == 'val')
 
@@ -223,8 +223,8 @@ class InputProducer():
         masks = gt_image != 255
         labels = masks * gt_image // 10
 
-        masks = masks.reshape(masks.shape + tuple([1]))
-        labels = labels.reshape(labels.shape + tuple([1]))
+        # masks = masks.reshape(masks.shape + tuple([1]))
+        # labels = labels.reshape(labels.shape + tuple([1]))
 
         return labels, masks
 

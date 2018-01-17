@@ -70,6 +70,14 @@ class Logger():
         self.steps = load_dict['steps']
         return self
 
+    def reduce_step(self, step):
+        reduced_data = {}
+        assert(step >= 0)
+        assert(step <= len(self.steps))
+        for key, value in self.data.items():
+            reduced_data[key] = value[step]
+        return reduced_data
+
 
 if __name__ == '__main__':
     logging.info("Hello World.")
