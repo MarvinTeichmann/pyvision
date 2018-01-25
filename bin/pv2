@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+import logging
+import sys
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                    level=logging.INFO,
+                    stream=sys.stdout)
+
+# sst modules
+import pyvision
+# from tv2.tools import selfcheck
+from pyvision.tools import train
+from pyvision.tools import evaluate
+
+
+def get_parser():
+    """Return the parser object for this script."""
+    parser = ArgumentParser(description=__doc__,
+                            formatter_class=ArgumentDefaultsHelpFormatter,
+                            prog='pv2')
+    subparsers = parser.add_subparsers(dest='cmd')
+    # subparsers.add_parser('selfcheck',
+    #                      add_help=False,
+    #                      help="Self-check of the sst toolkit.")
+    # parser.add_argument('--version',
+    #                    action='version',
+    #                    version=('sst %s' % str(sst.__version__)))
+    subparsers.add_parser('eval',
+                          add_help=False,
+                          parents=[evaluate.get_parser()],
+                          formatter_class=ArgumentDefaultsHelpFormatter,
+                          help=("Evaluate a single image"))
+    subparsers.add_parser('train',
+                          add_help=False,
+                          parents=[train.get_parser()],
+                          formatter_class=ArgumentDefaultsHelpFormatter,
+                          help=("Train a new model."))
+    return parser
+
+
+def main(args):
+    if args.cmd == 'train':
+        train.main(args)
+    elif args.cmd == 'eval':
+        raise NotImplementedError
+        evaluate.main(args)
+    else:
+        logging.info('No such tool.')
+
+if __name__ == '__main__':
+    args = get_parser().parse_args()
+    main(args)
