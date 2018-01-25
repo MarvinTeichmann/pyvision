@@ -11,6 +11,8 @@ from __future__ import print_function
 import os
 import sys
 
+import copy
+
 import numpy as np
 import scipy as scp
 
@@ -98,7 +100,7 @@ class SegmentationMetric(object):
 
     def get_pp_names(self, time_unit='s', summary=False):
         if not summary:
-            ret_list = self.name_list.copy()
+            ret_list = copy.copy(self.name_list)
             ret_list.append('class_seperator')
         else:
             ret_list = []
