@@ -22,6 +22,8 @@ import logging
 
 from datetime import datetime
 
+from .. import utils as pvutils
+
 # import matplotlib.pyplot as plt
 
 
@@ -46,11 +48,12 @@ def get_parser():
 
     # args = parser.parse_args()
 
-    # pvutils.set_gpus_to_use(args)
     return parser
 
 
 def main(args):
+
+    pvutils.set_gpus_to_use(args)
 
     logdir = args.logdir
     config_file = os.path.join(logdir, 'config.json')
