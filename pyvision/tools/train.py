@@ -67,6 +67,11 @@ def main(args):
     sys.path.insert(0, source_dir)
     sys.path.insert(1, add_source)
 
+    # Create an output log file
+    logfile = os.path.join(logdir, 'output.log')
+    logging.info("All output will be written to: {}".format(logfile))
+    pvutils.create_filewrite_handler(logfile, mode='a')
+
     m = imp.load_source('model', main_script)
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
