@@ -11,6 +11,7 @@ from __future__ import print_function
 import os
 import sys
 
+import imp
 import json
 import logging
 
@@ -70,6 +71,32 @@ def get_logdir_name(project=None, bench=None,
 
     logdir = os.path.join(root_dir, run_name)
     return logdir
+
+
+def load_model_from_logdir(logdir, filewriter=False):
+    config_file = os.path.join(logdir, 'config.json')
+    main_script = os.path.join(logdir, 'model.py')
+    source_dir = os.path.join(logdir, 'source')
+    add_source = os.path.join(source_dir, 'additional_packages')
+
+    logging.info("Loading Config file: {}".format(config_file))
+    config = json.load(open(config_file))
+    # TODO Make optional
+    sys.path.insert(0, source_dir)
+    sys.path.insert(1, add_source)
+
+    # Create an output log file
+    if filewriter:
+        logfile = os.path.join(logdir, 'output.log')
+        logging.info("All output will be written to: {}".format(logfile))
+        pvutils.create_filewrite_handler(logfile, mode='a')
+
+    m = imp.load_source('model', main_script)
+
+    model = m.create_pyvision_model(conf=config, logdir=logdir)
+    model.load_from_logdir()
+
+    return model
 
 
 def init_logdir(config, cfg_file, logdir):

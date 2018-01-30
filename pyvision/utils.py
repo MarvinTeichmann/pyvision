@@ -27,8 +27,11 @@ if __name__ == '__main__':
     logging.info("Hello World.")
 
 
-def set_gpus_to_use(args):
+def set_gpus_to_use(args, gpus=None):
     """Set the gpus to use."""
+    if gpus is not None:
+        os.environ['CUDA_VISIBLE_DEVICES'] = gpus
+
     if args.gpus is None:
         if 'TV_USE_GPUS' in os.environ:
             if os.environ['TV_USE_GPUS'] == 'force':
