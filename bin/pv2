@@ -15,6 +15,7 @@ import pyvision
 # from tv2.tools import selfcheck
 from pyvision.tools import train
 from pyvision.tools import evaluate
+from pyvision.tools import plot
 
 
 def get_parser():
@@ -39,6 +40,11 @@ def get_parser():
                           parents=[train.get_parser()],
                           formatter_class=ArgumentDefaultsHelpFormatter,
                           help=("Train a new model."))
+    subparsers.add_parser('plot',
+                          add_help=False,
+                          parents=[plot.get_parser()],
+                          formatter_class=ArgumentDefaultsHelpFormatter,
+                          help=("Plot summary information."))
     return parser
 
 
@@ -48,6 +54,8 @@ def main(args):
     elif args.cmd == 'eval':
         raise NotImplementedError
         evaluate.main(args)
+    elif args.cmd == 'plot':
+        plot.main(args)
     else:
         logging.info('No such tool.')
 
