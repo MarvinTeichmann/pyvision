@@ -46,6 +46,8 @@ def get_parser():
 
     parser.add_argument('--embed', action='store_true')
 
+    parser.add_argument('--compact', action='store_true')
+
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
 
@@ -84,11 +86,22 @@ def main(args):
     plotter = plotter.get_pyvision_plotter(config, args.logdirs)
 
     if args.embed:
+        print()
+        print()
+        plotter.print_keys()
+        print()
+        if len(plotter.keys()) > 0:
+            key_one = [t for t in plotter.keys()][0]
+            print("Try 'plotter.plot('%s')' to get started." % key_one)
+        print("Tip: Run 'plt.pause(30)' or 'plt.show()' "
+              "to unfreeze the Tkinter GUI.")
+        print()
+        print()
         from IPython import embed
         embed()
         pass
     else:
-        plotter.plot_default()
+        plotter.plot_default(compact=args.compact)
         plt.show()
 
 if __name__ == '__main__':
