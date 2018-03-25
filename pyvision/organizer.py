@@ -117,9 +117,15 @@ def init_logdir(config, cfg_file, logdir):
     pvutils.create_filewrite_handler(logfile)
 
     basedir = os.path.dirname(os.path.realpath(cfg_file))
+
     # Copy the main model file
-    source_file = os.path.join(basedir, config['pyvision']['main_source_file'])
+    source_file = os.path.join(basedir, config['pyvision']['entry_point'])
     target_file = os.path.join(logdir, "model.py")
+    copyfile(source_file, target_file)
+
+    # Copy the plotting file
+    source_file = os.path.join(basedir, config['pyvision']['plotter'])
+    target_file = os.path.join(logdir, "plot.py")
     copyfile(source_file, target_file)
 
     # Save config file

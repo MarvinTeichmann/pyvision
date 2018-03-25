@@ -61,12 +61,25 @@ def main(args):
     if args.plotter is not None:
         plotter = imp.load_source('plotter', args.plotter)
     else:
-        raise NotImplementedError
+        if args.logdirs == []:
+            logging.info("Usage: pv2 plot logdir1, [logdir2, logdir3, ...]")
+            logging.info("Please specify at least one logdir.")
+            exit(0)
+
+        main_dir = args.logdirs[0]
+        plot_file = os.path.join(main_dir, 'plot.py')
+        logging.info("Using plotter defined in: {}".format(plot_file))
+
+        plotter = imp.load_source('plotter', plot_file)
 
     if args.default:
         config = plotter.default_conf
     else:
-        raise NotImplementedError
+        main_dir = args.logdirs[0]
+        cfg_file = os.path.join(main_dir, 'config.json')
+        logging.info("Using config file: {}".format(cfg_file))
+        config = json.load(open(cfg_file))
+        config = config['plotting']
 
     plotter = plotter.get_pyvision_plotter(config, args.logdirs)
 
