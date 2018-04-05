@@ -52,7 +52,6 @@ def main(args):
     if args.cmd == 'train':
         train.main(args)
     elif args.cmd == 'eval':
-        raise NotImplementedError
         evaluate.main(args)
     elif args.cmd == 'plot':
         plot.main(args)
