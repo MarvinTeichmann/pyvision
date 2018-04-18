@@ -24,6 +24,8 @@ from datetime import datetime
 
 from .. import utils as pvutils
 
+from time import sleep
+
 # import matplotlib.pyplot as plt
 
 
@@ -42,6 +44,9 @@ def get_parser():
 
     parser.add_argument("--gpus", type=str,
                         help="gpus to use")
+
+    parser.add_argument('--wait', type=int,
+                        help="Wait till gpus are available.")
 
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
@@ -71,6 +76,14 @@ def main(args):
     logfile = os.path.join(logdir, 'output.log')
     logging.info("All output will be written to: {}".format(logfile))
     pvutils.create_filewrite_handler(logfile, mode='a')
+
+    if args.wait is not None:
+        import GPUtil
+        gpu_id = args.wait
+        while GPUtil.getGPUs()[gpu_id].memoryUtil > 0.4:
+            logging.info("GPU {} is beeing used.".format(gpu_id))
+            GPUtil.showUtilization()
+            sleep(60)
 
     m = imp.load_source('model', main_script)
 
