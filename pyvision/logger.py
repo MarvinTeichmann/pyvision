@@ -78,6 +78,16 @@ class Logger():
             reduced_data[key] = value[step]
         return reduced_data
 
+    def discard_data(self, step):
+        reduced_data = {}
+        assert(step >= 0)
+        assert(step <= len(self.steps))
+        for key, value in self.data.items():
+            reduced_data[key] = value[0:step]
+        self.data = reduced_data
+        self.steps = self.steps[0:step]
+        return
+
 
 if __name__ == '__main__':
     logging.info("Hello World.")
