@@ -80,7 +80,7 @@ def main(args):
     if args.wait is not None:
         import GPUtil
         gpu_id = args.wait
-        while GPUtil.getGPUs()[gpu_id].memoryUtil > 0.4:
+        while GPUtil.getGPUs()[gpu_id].memoryUtil > 0.2:
             logging.info("GPU {} is beeing used.".format(gpu_id))
             GPUtil.showUtilization()
             sleep(60)
