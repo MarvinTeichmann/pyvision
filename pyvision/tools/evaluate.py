@@ -53,6 +53,14 @@ def get_parser():
     parser.add_argument("--gpus", type=str,
                         help="gpus to use")
 
+    parser.add_argument("--eval_file", type=str,
+                        default="eval_out.log")
+
+    parser.add_argument('--sys_packages', action='store_true',
+                        help='Use system source for all packages.')
+    parser.add_argument('--add_packages', action='store_true',
+                        help='Use local source for additional_packages.')
+
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
 
@@ -68,17 +76,20 @@ def main(args):
     logdir = args.logdir[0]
     config_file = os.path.join(logdir, 'config.json')
     main_script = os.path.join(logdir, 'model.py')
+
     source_dir = os.path.join(logdir, 'source')
     add_source = os.path.join(source_dir, 'additional_packages')
 
     logging.info("Loading Config file: {}".format(config_file))
     config = json.load(open(config_file))
-    # TODO Make optional
-    sys.path.insert(0, source_dir)
-    sys.path.insert(1, add_source)
+
+    if args.add_packages:
+        sys.path.insert(0, add_source)
+    if not args.sys_packages:
+        sys.path.insert(0, source_dir)
 
     # Create an output log file
-    logfile = os.path.join(logdir, 'eval_out.log')
+    logfile = os.path.join(logdir, args.eval_file)
     logging.info("All output will be written to: {}".format(logfile))
     pvutils.create_filewrite_handler(logfile, mode='a')
 
