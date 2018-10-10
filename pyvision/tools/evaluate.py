@@ -56,6 +56,9 @@ def get_parser():
     parser.add_argument("--eval_file", type=str,
                         default="eval_out.log")
 
+    parser.add_argument("--level", type=str,
+                        default="mayor")
+
     parser.add_argument('--sys_packages', action='store_true',
                         help='Use system source for all packages.')
     parser.add_argument('--add_packages', action='store_true',
@@ -98,17 +101,22 @@ def main(args):
     model = m.create_pyvision_model(conf=config, logdir=logdir)
     model.load_from_logdir()
 
+    logging.info("Model loaded. Starting evaluation.")
+
+    imgdir = os.path.join(logdir, 'eval_out')
+
     if args.eval is None:
         start_time = time.time()
-        model.evaluate()
+        model.evaluator.imgdir = imgdir
+        model.evaluate(level=args.level)
         end_time = (time.time() - start_time) / 60
         logging.info("Finished training in {} minutes".format(end_time))
     else:
         evaluator = imp.load_source('evaluator', args.eval)
-        pveval = evaluator.get_pyvision_evaluator(config, model)
+        pveval = evaluator.get_pyvision_evaluator(config, model, imgdir=imgdir)
 
         start_time = time.time()
-        pveval.evaluate()
+        pveval.evaluate(level=args.level)
         end_time = (time.time() - start_time) / 60
         logging.info("Finished training in {} minutes".format(end_time))
 
