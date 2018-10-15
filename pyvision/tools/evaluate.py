@@ -56,6 +56,9 @@ def get_parser():
     parser.add_argument("--eval_file", type=str,
                         default="eval_out.log")
 
+    parser.add_argument("--evaldir", type=str,
+                        default='eval_out')
+
     parser.add_argument("--level", type=str,
                         default="mayor")
 
@@ -103,7 +106,7 @@ def main(args):
 
     logging.info("Model loaded. Starting evaluation.")
 
-    imgdir = os.path.join(logdir, 'eval_out')
+    imgdir = os.path.join(logdir, args.evaldir)
 
     if args.eval is None:
         start_time = time.time()
