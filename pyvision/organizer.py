@@ -46,7 +46,8 @@ def change_value(config, key, new_value):
 
 def get_logdir_name(project=None, bench=None,
                     cfg_file=None,
-                    prefix=None, config=None):
+                    prefix=None, config=None,
+                    timestamp=True):
 
     root_dir = os.path.join(os.environ['TV_DIR_RUNS'])
 
@@ -64,10 +65,15 @@ def get_logdir_name(project=None, bench=None,
     else:
         json_name = 'unnamed'
 
-    date = datetime.now().strftime('%Y_%m_%d_%H.%M')
     if prefix is not None:
-        json_name = prefix + "_" + json_name
-    run_name = '%s_%s' % (json_name, date)
+        run_name = prefix + "_" + json_name
+    else:
+        run_name = json_name
+
+    if timestamp:
+
+        date = datetime.now().strftime('%Y_%m_%d_%H.%M')
+        run_name = '%s_%s' % (run_name, date)
 
     logdir = os.path.join(root_dir, run_name)
     return logdir
