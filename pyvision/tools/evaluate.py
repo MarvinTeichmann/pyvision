@@ -80,6 +80,7 @@ def main(args):
     pvutils.set_gpus_to_use(args)
 
     logdir = args.logdir[0]
+    logdir = os.path.realpath(logdir)
     config_file = os.path.join(logdir, 'config.json')
     main_script = os.path.join(logdir, 'model.py')
 
