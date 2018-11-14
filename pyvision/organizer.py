@@ -129,6 +129,12 @@ def init_logdir(config, cfg_file, logdir):
     target_file = os.path.join(logdir, "model.py")
     copyfile(source_file, target_file)
 
+    # Copy the main model file
+    source_file = os.path.join(os.path.dirname(__file__),
+                               "tools/train_logdir.py")
+    target_file = os.path.join(logdir, "train.py")
+    copyfile(source_file, target_file)
+
     # Copy the plotting file
     source_file = os.path.join(basedir, config['pyvision']['plotter'])
     target_file = os.path.join(logdir, "plot.py")
