@@ -54,7 +54,7 @@ def get_parser():
                         help="gpus to use")
 
     parser.add_argument("--eval_file", type=str,
-                        default="eval_out.log")
+                        default="output.log")
 
     parser.add_argument("--evaldir", type=str,
                         default='eval_out')
@@ -95,8 +95,9 @@ def main(args):
     if not args.sys_packages:
         sys.path.insert(0, source_dir)
 
+    imgdir = os.path.join(logdir, args.evaldir)
     # Create an output log file
-    logfile = os.path.join(logdir, args.eval_file)
+    logfile = os.path.join(imgdir, args.eval_file)
     logging.info("All output will be written to: {}".format(logfile))
     pvutils.create_filewrite_handler(logfile, mode='a')
 
@@ -106,8 +107,6 @@ def main(args):
     model.load_from_logdir()
 
     logging.info("Model loaded. Starting evaluation.")
-
-    imgdir = os.path.join(logdir, args.evaldir)
 
     if args.eval is None:
         start_time = time.time()
