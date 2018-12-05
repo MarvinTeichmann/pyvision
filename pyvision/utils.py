@@ -18,6 +18,11 @@ import logging
 import json
 import shutil
 
+import time
+import traceback
+
+from multiprocessing import Process
+
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
@@ -25,6 +30,50 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
 
 if __name__ == '__main__':
     logging.info("Hello World.")
+
+
+def robust_training(model, restarts=5):
+    start_time = time.time()
+
+    crash_count = 0
+    crashed_epoch = 0
+    crash_epoch_count = 0
+
+    while True:
+
+        try:
+            model.load_from_logdir()
+            logging.info("Starting training at epoch: {}".format(model.epoch))
+
+            model.fit()
+
+            # p = Process(target=model.fit)
+            # p.start()
+            # p.join()
+            break
+        except:
+            # logging.info("Error: {}".format(sys.exc_info()[0]))
+            traceback.print_exc()
+            print()
+
+            crash_count += 1
+            logging.warning("Training was KILLED, count: {}".format(
+                crash_count))
+
+            if crashed_epoch >= model.epoch:
+                crash_epoch_count += 1
+                if crash_epoch_count == restarts:
+                    logging.info(
+                        "Model crashed {} times at epoch {}. "
+                        "Stopping training.".format(
+                            restarts + 1, crashed_epoch))
+                    break
+            else:
+                crashed_epoch = model.epoch
+                crash_epoch_count = 0
+
+    end_time = (time.time() - start_time) / 3600
+    logging.info("Finished training in {} hours".format(end_time))
 
 
 def set_gpus_to_use(args, gpus=None):

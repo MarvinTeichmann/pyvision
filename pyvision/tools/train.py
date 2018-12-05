@@ -89,12 +89,8 @@ def main(args):
     m = imp.load_source('model', main_script)
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
-    model.load_from_logdir()
 
-    start_time = time.time()
-    model.fit()
-    end_time = (time.time() - start_time) / 3600
-    logging.info("Finished training in {} hours".format(end_time))
+    pvutils.robust_training(model)
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
