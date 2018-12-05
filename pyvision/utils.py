@@ -41,20 +41,18 @@ def robust_training(model, restarts=5):
 
     while True:
 
-        try:
-            model.load_from_logdir()
-            logging.info("Starting training at epoch: {}".format(model.epoch))
+        model.load_from_logdir()
+        logging.info("Starting training at epoch: {}".format(model.epoch))
 
-            model.fit()
+        p = Process(target=model.fit)
+        p.start()
+        p.join()
 
-            # p = Process(target=model.fit)
-            # p.start()
-            # p.join()
+        if p.exitcode == 0:
             break
-        except:
+        else:
             # logging.info("Error: {}".format(sys.exc_info()[0]))
-            traceback.print_exc()
-            print()
+            # traceback.print_exc()
 
             crash_count += 1
             logging.warning("Training was KILLED, count: {}".format(
