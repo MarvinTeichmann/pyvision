@@ -90,7 +90,11 @@ def main(args):
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
 
-    pvutils.robust_training(model)
+    # subprocesses = config['pyvision']
+    # .get('support_subprocess', default=False)
+    subprocesses = config['pyvision']['run_as_subprocess']
+
+    pvutils.robust_training(model, subprocess=subprocesses)
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
