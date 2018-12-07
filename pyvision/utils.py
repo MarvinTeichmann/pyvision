@@ -72,7 +72,7 @@ def robust_training_exceptions(model, restarts=5):
             logging.warning("Training was KILLED, count: {}".format(
                 crash_count))
 
-            if crashed_epoch >= model.epoch:
+            if crashed_epoch >= model.epoch or restarts == 0:
                 crash_epoch_count += 1
                 if crash_epoch_count >= restarts:
                     logging.info(
