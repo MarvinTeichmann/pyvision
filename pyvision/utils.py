@@ -32,7 +32,7 @@ if __name__ == '__main__':
     logging.info("Hello World.")
 
 
-def robust_training(model, restarts=5, subprocess=False)
+def robust_training(model, restarts=5, subprocess=False):
 
     if not subprocess:
         robust_training_exceptions(model, restarts=restarts)
@@ -47,6 +47,8 @@ def robust_training_exceptions(model, restarts=5):
     crashed_epoch = 0
     crash_epoch_count = 0
 
+    model.epoch = 0
+
     while True:
 
         try:
@@ -59,6 +61,8 @@ def robust_training_exceptions(model, restarts=5):
             # p.start()
             # p.join()
             break
+        except KeyboardInterrupt:
+            break
         except:
             # logging.info("Error: {}".format(sys.exc_info()[0]))
             traceback.print_exc()
@@ -70,7 +74,7 @@ def robust_training_exceptions(model, restarts=5):
 
             if crashed_epoch >= model.epoch:
                 crash_epoch_count += 1
-                if crash_epoch_count == restarts:
+                if crash_epoch_count >= restarts:
                     logging.info(
                         "Model crashed {} times at epoch {}. "
                         "Stopping training.".format(
@@ -90,6 +94,8 @@ def robust_training_subprocess(model, restarts=5):
     crash_count = 0
     crashed_epoch = 0
     crash_epoch_count = 0
+
+    model.epoch = 0
 
     logging.warning("Run training in a seperate process."
                     " Make sure that your model supports multiprocessing or"
@@ -116,7 +122,7 @@ def robust_training_subprocess(model, restarts=5):
 
             if crashed_epoch >= model.epoch:
                 crash_epoch_count += 1
-                if crash_epoch_count == restarts:
+                if crash_epoch_count >= restarts:
                     logging.info(
                         "Model crashed {} times at epoch {}. "
                         "Stopping training.".format(
