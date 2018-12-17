@@ -48,6 +48,14 @@ def get_parser():
     parser.add_argument('--wait', type=int,
                         help="Wait till gpus are available.")
 
+    parser.add_argument('--restarts', type=int,
+                        default=5,
+                        help="Restart training [num] times when crashed.")
+
+    parser.add_argument('--subprocess', action='store_true',
+                        help="Run training as subprocess, allowing to recover"
+                             "from segmentation faults.")
+
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
 
@@ -90,11 +98,8 @@ def main(args):
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
 
-    # subprocesses = config['pyvision'].get('run_as_subprocess', default=True)
-    # subprocesses = config['pyvision']['run_as_subprocess']
-    subprocesses = False
-
-    pvutils.robust_training(model, subprocess=subprocesses, restarts=0)
+    pvutils.robust_training(model, subprocess=args.subprocess,
+                            restarts=args.restarts)
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
