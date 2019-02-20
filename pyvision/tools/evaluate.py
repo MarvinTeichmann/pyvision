@@ -59,6 +59,9 @@ def get_parser():
     parser.add_argument("--evaldir", type=str,
                         default='eval_out')
 
+    parser.add_argument("--data", type=str,
+                        default=None)
+
     parser.add_argument("--level", type=str,
                         default="mayor")
 
@@ -111,12 +114,13 @@ def main(args):
     if args.eval is None:
         start_time = time.time()
         model.evaluator.imgdir = imgdir
-        model.evaluate(level=args.level)
+        model.evaluate(level=args.level, dataset=args.data)
         end_time = (time.time() - start_time) / 60
         logging.info("Finished training in {} minutes".format(end_time))
     else:
         evaluator = imp.load_source('evaluator', args.eval)
-        pveval = evaluator.get_pyvision_evaluator(config, model, imgdir=imgdir)
+        pveval = evaluator.get_pyvision_evaluator(
+            config, model, imgdir=imgdir, dataset=args.data)
 
         start_time = time.time()
         pveval.evaluate(level=args.level)
