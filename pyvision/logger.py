@@ -20,6 +20,8 @@ import deepdish as dd
 import logging
 from tables.exceptions import NaturalNameWarning
 
+import pickle
+
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
@@ -52,7 +54,7 @@ class Logger():
                 name = prefix + "\\" + name
             self.add_value(value, name, step)
 
-    def save(self, filename):
+    def save(self, filename, hdf=False):
         if filename is None:
             assert(self.filename is not None)
             filename = self.filename
@@ -60,12 +62,16 @@ class Logger():
         save_dict = {'data': self.data,
                      'steps': self.steps}
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=NaturalNameWarning)
-            dd.io.save(filename, save_dict)
+        if hdf:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=NaturalNameWarning)
+                dd.io.save(filename, save_dict)
+        else:
+            pickle.dump(save_dict, open(filename, 'wb'))
 
     def load(self, filename):
-        load_dict = dd.io.load(filename)
+        # load_dict = dd.io.load(filename)
+        load_dict = pickle.load(open(filename, 'rb'))
         self.data = load_dict['data']
         self.steps = load_dict['steps']
         return self
