@@ -70,8 +70,10 @@ class Logger():
             pickle.dump(save_dict, open(filename, 'wb'))
 
     def load(self, filename):
-        # load_dict = dd.io.load(filename)
-        load_dict = pickle.load(open(filename, 'rb'))
+        try:
+            load_dict = pickle.load(open(filename, 'rb'))
+        except pickle.UnpicklingError:
+            load_dict = dd.io.load(filename)
         self.data = load_dict['data']
         self.steps = load_dict['steps']
         return self
