@@ -54,7 +54,7 @@ def get_parser():
                         help="gpus to use")
 
     parser.add_argument("--eval_file", type=str,
-                        default="output.log")
+                        default="eval_out.log")
 
     parser.add_argument("--evaldir", type=str,
                         default='eval_out')
@@ -112,20 +112,17 @@ def main(args):
     logging.info("Model loaded. Starting evaluation.")
 
     if args.eval is None:
-        start_time = time.time()
-        model.evaluator.imgdir = imgdir
-        model.evaluate(level=args.level, dataset=args.data)
-        end_time = (time.time() - start_time) / 60
-        logging.info("Finished training in {} minutes".format(end_time))
+        pveval = model.mevaluator.get_pyvision_evaluator(
+            config, model, imgdir=imgdir, dataset=args.data)
     else:
         evaluator = imp.load_source('evaluator', args.eval)
         pveval = evaluator.get_pyvision_evaluator(
             config, model, imgdir=imgdir, dataset=args.data)
 
-        start_time = time.time()
-        pveval.evaluate(level=args.level)
-        end_time = (time.time() - start_time) / 60
-        logging.info("Finished training in {} minutes".format(end_time))
+    start_time = time.time()
+    pveval.evaluate(level=args.level)
+    end_time = (time.time() - start_time) / 60
+    logging.info("Finished training in {} minutes".format(end_time))
 
 
 if __name__ == '__main__':
