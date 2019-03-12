@@ -56,7 +56,7 @@ def get_parser():
     parser.add_argument("--eval_file", type=str,
                         default="eval_out.log")
 
-    parser.add_argument("--evaldir", type=str,
+    parser.add_argument("--name", type=str,
                         default='eval_out')
 
     parser.add_argument("--data", type=str,
@@ -98,7 +98,7 @@ def main(args):
     if not args.sys_packages:
         sys.path.insert(0, source_dir)
 
-    imgdir = os.path.join(logdir, args.evaldir)
+    imgdir = os.path.join(logdir, args.name)
     # Create an output log file
     logfile = os.path.join(imgdir, args.eval_file)
     logging.info("All output will be written to: {}".format(logfile))
