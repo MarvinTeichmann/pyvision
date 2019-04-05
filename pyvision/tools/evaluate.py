@@ -59,6 +59,9 @@ def get_parser():
     parser.add_argument("--name", type=str,
                         default='eval_out')
 
+    parser.add_argument("--checkpoint", type=str,
+                        default=None)
+
     parser.add_argument("--data", type=str,
                         default=None)
 
@@ -107,7 +110,11 @@ def main(args):
     m = imp.load_source('model', main_script)
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
-    model.load_from_logdir()
+
+    if args.checkpoint is not None:
+        model.load_from_logdir(ckp_name=args.checkpoint)
+    else:
+        model.load_from_logdir()
 
     logging.info("Model loaded. Starting evaluation.")
 
