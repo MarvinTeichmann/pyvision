@@ -49,7 +49,7 @@ def get_logdir_name(project=None, bench=None,
                     prefix=None, config=None,
                     timestamp=True):
 
-    root_dir = os.path.join(os.environ['TV_DIR_RUNS'])
+    root_dir = os.path.join(os.environ['PV_DIR_RUNS'])
 
     if config is not None:
         project = config['pyvision']['project_name']
