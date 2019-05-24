@@ -18,16 +18,143 @@ import scipy as scp
 
 import logging
 
+from collections import OrderedDict
+
+from pyvision.evaluation import pretty_printer as pp
+
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
 
-from collections import OrderedDict
 
-from pyvision import pretty_printer as pp
+class PVmetric(object):
+    """docstring for metric"""
+    def __init__(self):
+        pass
+
+    def get_pp_names(self, time_unit='s', summary=False):
+        raise NotImplementedError
+
+    def get_pp_values(self, ignore_first=True,
+                      time_unit='s', summary=False):
+        raise NotImplementedError
+
+    def get_pp_dict(
+            self, ignore_first=True, time_unit='s', summary=False):
+        raise NotImplementedError
 
 
-class SegmentationMetric(object):
+class CombinedMetric(PVmetric):
+    """docstring for CombinedMetric"""
+    def __init__(self, metriclist):
+        super(CombinedMetric, self).__init__()
+        self.metriclist = metriclist
+
+    def get_pp_names(self, time_unit='s', summary=False):
+
+        pp_names = []
+
+        for i, metric in enumerate(self.metriclist):
+            if metric is None:
+                continue
+            if i > 0:
+                pp_names.append('class_seperator')
+            pp_names += metric.get_pp_names(
+                time_unit=time_unit, summary=summary)
+
+        return pp_names
+
+    def get_pp_values(self, ignore_first=True,
+                      time_unit='s', summary=False):
+
+        pp_values = []
+
+        for i, metric in enumerate(self.metriclist):
+            if metric is None:
+                continue
+            if i > 0:
+                pp_values.append(pp.NEW_TABLE_LINE_MARKER)
+            pp_values += metric.get_pp_values(
+                ignore_first=ignore_first,
+                time_unit=time_unit, summary=summary)
+
+        return pp_values
+
+    def get_pp_dict(self, ignore_first=True, time_unit='s', summary=False):
+
+        names = self.get_pp_names(time_unit=time_unit, summary=summary)
+        values = self.get_pp_values(ignore_first=ignore_first,
+                                    time_unit=time_unit,
+                                    summary=summary)
+
+        return OrderedDict(zip(names, values))
+
+
+class BinarySegMetric(PVmetric):
+    """docstring for BinarySegMetric"""
+    def __init__(self, thresh=0.5):
+        super(BinarySegMetric, self).__init__()
+        self.thresh = thresh
+
+        self.tp = 0
+        self.fp = 0
+        self.tn = 0
+        self.fn = 0
+
+    def add(self, prediction, label, mask=None):
+
+        positive = (prediction[0] < self.thresh)
+
+        self.tp += np.sum(positive * label * mask)
+        self.fp += np.sum((1 - positive) * label * mask)
+        self.fn += np.sum(positive * (1 - label) * mask)
+        self.tn += np.sum((1 - positive) * (1 - label) * mask)
+
+    def get_pp_names(self, time_unit='s', summary=False):
+
+        pp_names = []
+
+        pp_names.append("IoU")
+        pp_names.append("Precision (PPV)")
+        pp_names.append("neg. Prec. (NPV)")
+        pp_names.append("Recall (TPR)")
+        pp_names.append("Accuracy")
+        pp_names.append("Positive")
+
+        return pp_names
+
+    def get_pp_values(self, ignore_first=True,
+                      time_unit='s', summary=False):
+
+        pp_values = []
+
+        num_examples = (self.tp + self.fn + self.tn + self.tp)
+
+        iou = self.tp / (self.tp + self.fp + self.fn)
+
+        tp = max(self.tp, 1)
+        tn = max(self.tn, 1)
+
+        pp_values.append(iou)
+        pp_values.append(tp / (tp + self.fp))
+        pp_values.append(tn / (tn + self.fn))
+        pp_values.append(tp / (tp + self.fn))
+        pp_values.append((tp + tn) / num_examples)
+        pp_values.append((tp + self.fp) / num_examples)
+
+        return pp_values
+
+    def get_pp_dict(self, ignore_first=True, time_unit='s', summary=False):
+
+        names = self.get_pp_names(time_unit=time_unit, summary=summary)
+        values = self.get_pp_values(ignore_first=ignore_first,
+                                    time_unit=time_unit,
+                                    summary=summary)
+
+        return OrderedDict(zip(names, values))
+
+
+class SegmentationMetric(PVmetric):
     """docstring for SegmentationMetric"""
     def __init__(self, num_classes, name_list=None):
         super(SegmentationMetric, self).__init__()
