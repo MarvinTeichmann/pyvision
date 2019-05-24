@@ -111,7 +111,8 @@ def main(args):
 
         m = imp.load_source('model', model_file)
 
-        mymodel = m.create_pyvision_model(config, logdir=logdir)
+        mymodel = m.create_pyvision_model(
+            config, logdir=logdir, debug=args.debug)
 
         if args.debug:
             restarts = 0
@@ -129,7 +130,7 @@ def main(args):
         logging.info("To start training run:")
         logging.info("    pv2 train {} --gpus".format(logdir))
 
-    exit(0)
+    return logdir
 
 if __name__ == '__main__':
     args = get_parser().parse_args()
