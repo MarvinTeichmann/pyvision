@@ -119,7 +119,7 @@ def main(args):
     logging.info("Model loaded. Starting evaluation.")
 
     if args.eval is None:
-        pveval = model.mevaluator.get_pyvision_evaluator(
+        pveval = model.pv_evaluator.get_pyvision_evaluator(
             config, model, imgdir=imgdir, dataset=args.data)
     else:
         evaluator = imp.load_source('evaluator', args.eval)
