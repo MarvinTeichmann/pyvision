@@ -99,37 +99,31 @@ class BinarySegVisualizer():
         ax.set_title('Image')
         ax.axis('off')
         ax.imshow(image)
-        ax.invert_yaxis()
 
         ax = figure.add_subplot(2, 3, 4)
         ax.set_title('Label')
         ax.axis('off')
         ax.imshow(colour_label)
-        ax.invert_yaxis()
 
         ax = figure.add_subplot(2, 3, 5)
         ax.set_title('Failure Map')
         ax.axis('off')
         ax.imshow(correct_colour)
-        ax.invert_yaxis()
 
         ax = figure.add_subplot(2, 3, 2)
         ax.set_title('Prediction')
         ax.axis('off')
         ax.imshow(colour_pred)
-        ax.invert_yaxis()
 
         ax = figure.add_subplot(2, 3, 3)
         ax.set_title('Prediction hard')
         ax.axis('off')
         ax.imshow(colour_hard)
-        ax.invert_yaxis()
 
         ax = figure.add_subplot(2, 3, 6)
         ax.set_title('Failure hard')
         ax.axis('off')
         ax.imshow(hdiff_colour)
-        ax.invert_yaxis()
 
         return figure
 

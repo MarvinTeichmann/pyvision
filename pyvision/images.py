@@ -23,6 +23,8 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
 
 def normalization(img, whitening=False):
 
+    img = img.astype(np.float32)
+
     img = (img - np.min(img)) / (np.max(img) - np.min(img))
 
     if whitening:

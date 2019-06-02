@@ -137,7 +137,8 @@ class Plotter(object):
 
     def plot_data(self, steps, plot_data, names,
                   plot_smoothed=True, title=None,
-                  marker=".", linestyle=' ', annotate=True, percent=True):
+                  marker=".", linestyle=' ', annotate=True, percent=True,
+                  ax=None, show=True, show_legend=True):
 
         if len(steps) != len(names):
             steps = [steps for i in range(len(names))]
@@ -146,7 +147,8 @@ class Plotter(object):
 
         # plt.rcParams.update({'font.size': 14})
         # fig, ax = plt.subplots(figsize=(6.4, 4.8))
-        fig, ax = plt.subplots()
+        if ax is None:
+            fig, ax = plt.subplots()
 
         iterator = zip(plot_data, names, steps)
 
@@ -178,9 +180,11 @@ class Plotter(object):
             ax.set_xlabel('Epoch')
             ax.set_ylabel('Score [%]')
             # ax.legend()
-            ax.legend(loc=0)
+            if show_legend:
+                ax.legend(loc=0)
 
-        plt.pause(0.01)
+        if show is True:
+            plt.pause(0.01)
 
     def _do_annotation(self, ax, color, data, steps, iter):
         iter2 = 0
