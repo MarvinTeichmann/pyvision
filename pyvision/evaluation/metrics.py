@@ -39,9 +39,14 @@ class PVmetric(object):
                       time_unit='s', summary=False):
         raise NotImplementedError
 
-    def get_pp_dict(
-            self, ignore_first=True, time_unit='s', summary=False):
-        raise NotImplementedError
+    def get_pp_dict(self, ignore_first=True, time_unit='s', summary=False):
+
+        names = self.get_pp_names(time_unit=time_unit, summary=summary)
+        values = self.get_pp_values(ignore_first=ignore_first,
+                                    time_unit=time_unit,
+                                    summary=summary)
+
+        return OrderedDict(zip(names, values))
 
 
 class CombinedMetric(PVmetric):
@@ -49,6 +54,9 @@ class CombinedMetric(PVmetric):
     def __init__(self, metriclist):
         super(CombinedMetric, self).__init__()
         self.metriclist = metriclist
+
+    def add(self, idx, *args, **kwargs):
+        self.metriclist[idx].add(*args, **kwargs)
 
     def get_pp_names(self, time_unit='s', summary=False):
 
