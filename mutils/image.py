@@ -21,14 +21,9 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     stream=sys.stdout)
 
 
-def normalization(img, whitening=False):
+def normalize(img, whitening=False):
 
-    img = img.astype(np.float32)
-
-    if np.max(img) - np.min(img) > 1e-8:
-        img = (img - np.min(img)) / (np.max(img) - np.min(img))
-    else:
-        img = np.zeros(img.shape)
+    img = (img - np.min(img)) / (np.max(img) - np.min(img))
 
     if whitening:
 
