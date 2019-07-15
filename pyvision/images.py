@@ -25,7 +25,10 @@ def normalization(img, whitening=False):
 
     img = img.astype(np.float32)
 
-    img = (img - np.min(img)) / (np.max(img) - np.min(img))
+    if np.max(img) - np.min(img) > 1e-8:
+        img = (img - np.min(img)) / (np.max(img) - np.min(img))
+    else:
+        img = np.zeros(img.shape)
 
     if whitening:
 
