@@ -14,15 +14,15 @@ import sys
 import numpy as np
 import scipy as scp
 
-import json
 import logging
+import json
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
 
 
-def save(fname, sdict, indent=2, sort_keys=True, verbose=False,
+def save(fname, sdict, verbose=False, indent=2, sort_keys=True,
          *args, **kwargs):
     with open(fname, 'w') as file:
         json.dump(
@@ -34,7 +34,14 @@ def save(fname, sdict, indent=2, sort_keys=True, verbose=False,
 
 def load(fname):
     with open(fname, 'r') as file:
-        return json.load(open(file, 'r'))
+
+        stripped = [
+            row if len(row.split('//')) == 1 else row.split('//')[0] + '\n'
+            for row in file.readlines()
+        ]
+
+        jsmin = ''.join(stripped)
+        return json.loads(jsmin)
 
 
 if __name__ == '__main__':
