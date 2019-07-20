@@ -22,6 +22,8 @@ from collections import OrderedDict
 
 from pyvision.evaluation import pretty_printer as pp
 
+from sklearn.metrics import classification_report
+
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
                     stream=sys.stdout)
@@ -307,6 +309,86 @@ class SegmentationMetric(PVmetric):
         crf_dict['mIoU'] = self.compute_miou(ignore_first=ignore_first)
 
         return crf_dict.keys(), crf_dict.values()
+
+
+class ClassificationMetric(PVmetric):
+    """docstring for ClassificationMetric"""
+    def __init__(self, num_classes, name_list=None):
+        super().__init__()
+        self.num_classes = num_classes
+        self.name_list = name_list
+
+        self.predictions = []
+        self.labels = []
+        self.times = []
+
+    def add(self, prediction, label, mask=True, duration=None):
+
+        if duration is not None:
+                self.times.append(duration)
+
+        self.predictions.append(np.argmax(prediction))
+        self.labels.append(label)
+        self.times.append(duration)
+
+    def get_pp_names(self, time_unit='s', summary=False):
+        if not summary:
+            ret_list = ["{name:8} [F1]".format(name=name)
+                        for name in self.name_list]
+            ret_list.append('class_seperator')
+        else:
+            ret_list = [name for name in self.name_list]
+
+        if len(self.times) > 0:
+            ret_list.append("speed [{}]".format(time_unit))
+
+        ret_list.append('accuracy')
+        # ret_list.append('precision')
+        # ret_list.append('recall')
+        # ret_list.append('support')
+        ret_list.append('avg f1')
+
+        return ret_list
+
+    def get_pp_values(self, ignore_first=True,
+                      time_unit='s', summary=False):
+
+        report = classification_report(
+            self.labels, self.predictions, output_dict=True,
+            target_names=self.name_list)
+
+        if not summary:
+            values = [report[name]['f1-score'] for name in self.name_list]
+            values.append(pp.NEW_TABLE_LINE_MARKER)
+        else:
+            values = [report[name]['f1-score'] for name in self.name_list]
+
+        if len(self.times) > 0:
+            # pretty printer will multiply all values with 100
+            # in order to convert metrics [0, 1] to [0, 100]
+            # so times (in seconds) needs to be divided by 100.
+            if time_unit == 's':
+                values.append(sum(self.times) / len(self.times) / 100)
+            elif time_unit == 'ms':
+                values.append(10 * sum(self.times) / len(self.times))
+            else:
+                raise ValueError
+
+        values.append(report['accuracy'])
+        # values.append(report['macro avg']['precision'])
+        # values.append(report['macro avg']['recall'])
+        # values.append(report['macro avg']['support'] / 100)
+        values.append(report['macro avg']['f1-score'])
+
+        return values
+
+    def get_pp_dict(self, ignore_first=True, time_unit='s', summary=False):
+        names = self.get_pp_names(time_unit=time_unit, summary=summary)
+        values = self.get_pp_values(ignore_first=ignore_first,
+                                    time_unit=time_unit,
+                                    summary=summary)
+
+        return OrderedDict(zip(names, values))
 
 if __name__ == '__main__':
     logging.info("Hello World.")
