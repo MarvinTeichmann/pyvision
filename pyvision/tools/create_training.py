@@ -4,7 +4,6 @@ from __future__ import print_function
 
 import os
 import imp
-import json
 import sys
 import argparse
 import time
@@ -18,6 +17,7 @@ from datetime import datetime
 
 from pyvision import utils as pvutils
 from pyvision import organizer as pvorg
+from mutils import json
 
 from time import sleep
 
@@ -81,7 +81,7 @@ def main(args):
     pvutils.set_gpus_to_use(args)
 
     logging.info("Loading Config file: {}".format(args.config))
-    config = json.load(open(args.config))
+    config = json.load(args.config)
 
     logdir = pvorg.get_logdir_name(
         project=config['pyvision']['project_name'],

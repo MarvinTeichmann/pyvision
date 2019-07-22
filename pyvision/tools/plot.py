@@ -10,7 +10,6 @@ from __future__ import print_function
 
 import os
 import imp
-import json
 import sys
 import argparse
 import time
@@ -23,6 +22,8 @@ import logging
 from datetime import datetime
 
 from .. import utils as pvutils
+
+from mutils import json
 
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
@@ -80,7 +81,7 @@ def main(args):
         main_dir = args.logdirs[0]
         cfg_file = os.path.join(main_dir, 'config.json')
         logging.info("Using config file: {}".format(cfg_file))
-        config = json.load(open(cfg_file))
+        config = json.load(cfg_file)
         config = config['plotting']
 
     plotter = plotter.get_pyvision_plotter(config, args.logdirs)

@@ -15,13 +15,14 @@ import numpy as np
 import scipy as scp
 
 import logging
-import json
 import shutil
 
 import time
 import traceback
 
 from multiprocessing import Process
+
+from mutils import json
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,

@@ -10,7 +10,6 @@ from __future__ import print_function
 
 import os
 import imp
-import json
 import sys
 import argparse
 import time
@@ -23,6 +22,8 @@ import logging
 from datetime import datetime
 
 from .. import utils as pvutils
+
+from mutils import json
 
 # import matplotlib.pyplot as plt
 
@@ -94,7 +95,7 @@ def main(args):
     add_source = os.path.join(source_dir, 'additional_packages')
 
     logging.info("Loading Config file: {}".format(config_file))
-    config = json.load(open(config_file))
+    config = json.load(config_file)
 
     if args.add_packages:
         sys.path.insert(0, add_source)

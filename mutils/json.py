@@ -1,7 +1,7 @@
 """
 The MIT License (MIT)
 
-Copyright (c) 2020 Marvin Teichmann
+Copyright (c) 2019 Marvin Teichmann
 """
 
 from __future__ import absolute_import
@@ -33,6 +33,7 @@ def save(fname, sdict, verbose=False, indent=2, sort_keys=True,
 
 
 def load(fname):
+
     with open(fname, 'r') as file:
 
         stripped = [
@@ -42,6 +43,10 @@ def load(fname):
 
         jsmin = ''.join(stripped)
         return json.loads(jsmin)
+
+
+def dump(jdict, file, *args, **kwargs):
+    return json.dump(jdict, file, *args, **kwargs)
 
 
 if __name__ == '__main__':

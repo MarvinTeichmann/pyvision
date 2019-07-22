@@ -14,7 +14,6 @@ from __future__ import division
 from __future__ import print_function
 
 import itertools
-import json
 import logging
 import os
 import sys

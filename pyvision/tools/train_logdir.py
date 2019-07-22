@@ -10,10 +10,10 @@ from __future__ import print_function
 
 import os
 import imp
-import json
 import sys
 import argparse
 import time
+from time import sleep
 
 import shutil
 from shutil import copyfile
@@ -28,9 +28,8 @@ add_source = os.path.join(source_dir, 'additional_packages')
 sys.path.insert(0, source_dir)
 sys.path.insert(1, add_source)
 
-from pyvision import utils as pvutils
-
-from time import sleep
+from pyvision import utils as pvutils  # NOQA: E402
+from mutils import json  # NOQA: E402
 
 # import matplotlib.pyplot as plt
 
@@ -69,7 +68,7 @@ def main(args):
     main_script = os.path.join(logdir, 'model.py')
 
     logging.info("Loading Config file: {}".format(config_file))
-    config = json.load(open(config_file))
+    config = json.load(config_file)
 
     # Create an output log file
     logfile = os.path.join(logdir, 'output.log')

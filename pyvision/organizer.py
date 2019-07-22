@@ -12,7 +12,6 @@ import os
 import sys
 
 import imp
-import json
 import logging
 
 import shutil
@@ -23,6 +22,8 @@ from functools import reduce
 
 import numpy as np
 import scipy as scp
+
+from mutils import json
 
 
 from pyvision import utils as pvutils
@@ -86,7 +87,7 @@ def load_model_from_logdir(logdir, filewriter=False):
     add_source = os.path.join(source_dir, 'additional_packages')
 
     logging.info("Loading Config file: {}".format(config_file))
-    config = json.load(open(config_file))
+    config = json.load(config_file)
     # TODO Make optional
     sys.path.insert(0, source_dir)
     sys.path.insert(1, add_source)
@@ -108,7 +109,7 @@ def load_model_from_logdir(logdir, filewriter=False):
 def init_logdir(config, cfg_file, logdir):
 
     if config is None:
-        config = json.load(open(cfg_file))
+        config = json.load(cfg_file)
 
     logging.info("Initializing Logdir: {}".format(logdir))
     if not os.path.exists(logdir):
