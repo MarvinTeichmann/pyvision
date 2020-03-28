@@ -183,6 +183,9 @@ class SegmentationMetric(PVmetric):
     def add(self, gt, mask, prediction, time=None, ignore_idx=None):
         self.count = self.count + np.sum(mask)
         relevant_classes = set(np.unique(prediction)).union(np.unique(gt))
+
+        assert gt.shape == prediction.shape
+
         for cl_id in relevant_classes:
 
             if cl_id == ignore_idx:
