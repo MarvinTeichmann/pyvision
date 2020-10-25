@@ -4,21 +4,17 @@ The MIT License (MIT)
 Copyright (c) 2019 Marvin Teichmann
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
+import logging
 import os
 import sys
 import time
-
-import numpy as np
-import scipy as scp
-
-import logging
 from collections import OrderedDict
 
+import numpy as np
 import pyvision
+import scipy as scp
 from pyvision.evaluation import pretty_printer as pp
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
@@ -74,6 +70,7 @@ class CombinedEvaluator(object):
 
                 values = metric.get_pp_values(
                     time_unit="ms", summary=False, ignore_first=False)
+
                 smoothed = self.evaluators[name].smoother.update_weights(
                     values)
 

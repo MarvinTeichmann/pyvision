@@ -4,22 +4,18 @@ The MIT License (MIT)
 Copyright (c) 2018 Marvin Teichmann
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
+import logging
 import os
 import sys
+from pprint import pprint
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as scp
 
-import logging
-
-import matplotlib.pyplot as plt
-
 from pyvision.logger import Logger
-from pprint import pprint
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                     level=logging.INFO,
@@ -159,7 +155,12 @@ class Plotter(object):
             else:
                 p_data = data
 
-            smoothed = self.medianize(p_data, unbiased=True)
+            try:
+                weight = self.config['num_smoothing_samples']
+            except KeyError:
+                weight = 20
+
+            smoothed = self.medianize(p_data, weight=weight, unbiased=True)
 
             color = 'C{}'.format(i)
 
