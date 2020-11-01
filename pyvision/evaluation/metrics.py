@@ -4,24 +4,17 @@ The MIT License (MIT)
 Copyright (c) 2017 Marvin Teichmann
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import os
-import sys
+from __future__ import absolute_import, division, print_function
 
 import copy
+import logging
+import os
+import sys
+from collections import OrderedDict
 
 import numpy as np
 import scipy as scp
-
-import logging
-
-from collections import OrderedDict
-
 from pyvision.evaluation import pretty_printer as pp
-
 from sklearn.metrics import classification_report
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
@@ -111,7 +104,10 @@ class BinarySegMetric(PVmetric):
         self.tn = 0
         self.fn = 0
 
-    def add(self, prediction, label, mask=None):
+        self.times = []
+
+    def add(self, prediction, label,
+            mask=None, time=None, ignore_idx=None):
 
         positive = (prediction[0] < self.thresh)
 
@@ -119,6 +115,9 @@ class BinarySegMetric(PVmetric):
         self.fp += np.sum((1 - positive) * label * mask)
         self.fn += np.sum(positive * (1 - label) * mask)
         self.tn += np.sum((1 - positive) * (1 - label) * mask)
+
+        if time is not None:
+            self.times.append(time)
 
     def get_pp_names(self, time_unit='s', summary=False):
 
@@ -130,6 +129,8 @@ class BinarySegMetric(PVmetric):
         pp_names.append("Recall (TPR)")
         pp_names.append("Accuracy")
         pp_names.append("Positive")
+        if len(self.times) > 0:
+            pp_names.append("speed [{}]".format(time_unit))
 
         return pp_names
 
@@ -151,6 +152,17 @@ class BinarySegMetric(PVmetric):
         pp_values.append(tp / (tp + self.fn))
         pp_values.append((tp + tn) / num_examples)
         pp_values.append((tp + self.fp) / num_examples)
+
+        if len(self.times) > 0:
+            # pretty printer will multiply all values with 100
+            # in order to convert metrics [0, 1] to [0, 100]
+            # so times (in seconds) needs to be divided by 100.
+            if time_unit == 's':
+                pp_values.append(sum(self.times) / len(self.times) / 100)
+            elif time_unit == 'ms':
+                pp_values.append(10 * sum(self.times) / len(self.times))
+            else:
+                raise ValueError
 
         return pp_values
 
@@ -180,18 +192,19 @@ class SegmentationMetric(PVmetric):
 
         self.count = 0
 
-    def add(self, gt, mask, prediction, time=None, ignore_idx=None):
+    def add(self, prediction, label,
+            mask=None, time=None, ignore_idx=None):
         self.count = self.count + np.sum(mask)
-        relevant_classes = set(np.unique(prediction)).union(np.unique(gt))
+        relevant_classes = set(np.unique(prediction)).union(np.unique(label))
 
-        assert gt.shape == prediction.shape
+        assert label.shape == prediction.shape
 
         for cl_id in relevant_classes:
 
             if cl_id == ignore_idx:
                 continue
 
-            pos = gt == cl_id
+            pos = label == cl_id
             pred = prediction == cl_id
 
             tp = np.sum(pos * pred * mask)
@@ -328,7 +341,7 @@ class ClassificationMetric(PVmetric):
     def add(self, prediction, label, mask=True, duration=None):
 
         if duration is not None:
-                self.times.append(duration)
+            self.times.append(duration)
 
         self.predictions.append(np.argmax(prediction))
         self.labels.append(label)
@@ -392,6 +405,7 @@ class ClassificationMetric(PVmetric):
                                     summary=summary)
 
         return OrderedDict(zip(names, values))
+
 
 if __name__ == '__main__':
     logging.info("Hello World.")
