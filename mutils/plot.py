@@ -27,7 +27,7 @@ def plot_corrolation(x, y, x_name=None, y_name=None, **kwargs):
     ax.set_ylabel(y_name)
 
     slope, intercept, corrcoef, p, stderr = scp.stats.linregress(x, y)
-    ax.set_title("Corrolation: {:2.2f}".format(100 * corrcoef))
+    ax.set_title("Corrolation: {:2.2f}%".format(100 * corrcoef))
     ax.plot(x, x * slope + intercept, color='orange')
 
 
