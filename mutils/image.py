@@ -8,13 +8,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
+
 import sys
-
-import numpy as np
-import scipy as scp
-
 import logging
+import numpy as np
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -46,18 +43,28 @@ def normalize(img, whitening=False, verbose=True):
     return img
 
 
-def plot(*args, backend='Qt5agg'): # NOQA
+def show(*args, nrows=1, backend=None, **kwargs):
 
-    matplotlib.use(backend)
+    if backend is not None:
+        matplotlib.use(backend)
+
     num_images = len(args)
 
-    fig, axes = plt.subplots(1, num_images)
+    ncols = int(np.ceil(num_images / nrows) + 0.01)
 
-    for ax, img in zip(axes, args):
-        ax.imshow(img)
+    fig, axes = plt.subplots(nrows, ncols, **kwargs)
+
+    if num_images > 1:
+        for ax, img in zip(axes.flatten(), args):
+            ax.imshow(img)
+    else:
+        axes.imshow(args[0])
 
     plt.show()
-    plt.close(fig)
+    return fig
+
+
+plot = show
 
 
 if __name__ == '__main__':
