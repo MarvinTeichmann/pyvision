@@ -132,7 +132,7 @@ class Plotter(object):
         return self.loggers[0]
 
     def plot_data(self, steps, plot_data, names,
-                  plot_smoothed=True, title=None,
+                  plot_smoothed=True, title=None, sm_weight=None,
                   marker=".", linestyle=' ', annotate=True, percent=True,
                   ax=None, show=True, show_legend=True):
 
@@ -227,6 +227,71 @@ class Plotter(object):
         p3 = (steps[xlast], ylast, 'last')
 
         return [p1, p2, p3]
+
+
+def medianize(data, weight=20, unbiased=True):
+    if unbiased:
+        medianized = [np.median(data[max(i - weight, 0): i + min(i, weight) + 1]) # NOQA
+                      for i in range(len(data))]
+    else:
+        medianized = [np.median(data[max(i - weight, 0): i + 1])
+                      for i in range(len(data))]
+    return medianized
+
+
+class Plotter2(Plotter):
+    """docstring for Plotter"""
+
+    def __init__(self, steps=None, ax=None, fig=None, title=None):
+        self.ax = ax
+        self.fig = fig
+        self.steps = steps
+        self.title = title
+
+        self.i = 0
+
+        if ax is None:
+            self.fig, self.ax = plt.subplots()
+
+    def plot_scores(self, score, name, steps=None,
+                    plot_smoothed=True, sm_weight=20,
+                    marker=".", linestyle=' ', annotate=True, percent=True,
+                    show=False, show_legend=True):
+
+        ax = self.ax
+
+        if steps is None:
+            steps = self.steps
+
+        if percent:
+            score = [100 * s for s in score]
+
+        smoothed = self.medianize(score, weight=sm_weight, unbiased=True)
+
+        color = 'C{}'.format(self.i)
+        self.i += 1
+
+        # Do plotting
+        ax.plot(steps, score, marker=marker, linestyle=linestyle,
+                label=name + " (raw)", color=color)
+
+        if plot_smoothed:
+            ax.plot(steps, smoothed,
+                    label=name + " (smooth)", color=color)
+
+            if annotate:
+                self._do_annotation(ax, color, smoothed, steps, self.i)
+
+        if self.title is not None:
+            ax.set_title(self.title)
+
+        ax.set_xlabel('Epoch')
+        ax.set_ylabel('Score [%]')
+        # ax.legend()
+        if show_legend:
+            ax.legend(loc=0)
+
+
 
 if __name__ == '__main__':
     logging.info("Hello World.")

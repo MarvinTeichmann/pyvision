@@ -41,6 +41,7 @@ class Logger():
                    self.steps[1] - self.steps[0])
 
     def add_value(self, value, name, step):
+        # TODO: make more pythonic / permissive
         assert(self.steps[-1] == step)
         if len(self.steps) == 1:
             self.data[name] = [value]
@@ -69,7 +70,11 @@ class Logger():
         else:
             pickle.dump(save_dict, open(filename, 'wb'))
 
-    def load(self, filename):
+    def load(self, filename=None):
+
+        if filename is None:
+            filename = self.filename
+
         try:
             load_dict = pickle.load(open(filename, 'rb'))
         except pickle.UnpicklingError:
