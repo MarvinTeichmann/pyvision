@@ -43,7 +43,7 @@ def normalize(img, whitening=False, verbose=True):
     return img
 
 
-def show(*args, nrows=1, backend=None, **kwargs):
+def show(*args, nrows=1, backend=None, title=None, **kwargs):
 
     if backend is not None:
         matplotlib.use(backend)
@@ -53,6 +53,9 @@ def show(*args, nrows=1, backend=None, **kwargs):
     ncols = int(np.ceil(num_images / nrows) + 0.01)
 
     fig, axes = plt.subplots(nrows, ncols, **kwargs)
+
+    if title is not None:
+        fig.suptitle(title)
 
     if num_images > 1:
         for ax, img in zip(axes.flatten(), args):

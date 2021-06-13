@@ -256,7 +256,8 @@ class Plotter2(Plotter):
     def plot_scores(self, score, name, steps=None,
                     plot_smoothed=True, sm_weight=20,
                     marker=".", linestyle=' ', annotate=True, percent=True,
-                    show=False, show_legend=True):
+                    show=False, show_legend=True, alpha=1,
+                    x_label='Epoch', y_label='Score [%]'):
 
         ax = self.ax
 
@@ -273,11 +274,11 @@ class Plotter2(Plotter):
 
         # Do plotting
         ax.plot(steps, score, marker=marker, linestyle=linestyle,
-                label=name + " (raw)", color=color)
+                label=name + " (raw)", color=color, alpha=alpha)
 
         if plot_smoothed:
             ax.plot(steps, smoothed,
-                    label=name + " (smooth)", color=color)
+                    label=name + " (smooth)", color=color, alpha=alpha)
 
             if annotate:
                 self._do_annotation(ax, color, smoothed, steps, self.i)
@@ -285,8 +286,9 @@ class Plotter2(Plotter):
         if self.title is not None:
             ax.set_title(self.title)
 
-        ax.set_xlabel('Epoch')
-        ax.set_ylabel('Score [%]')
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+
         # ax.legend()
         if show_legend:
             ax.legend(loc=0)

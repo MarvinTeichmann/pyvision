@@ -127,6 +127,7 @@ class BinarySegMetric(PVmetric):
         pp_names.append("Precision (PPV)")
         pp_names.append("neg. Prec. (NPV)")
         pp_names.append("Recall (TPR)")
+        pp_names.append("Spec (TNR)")
         pp_names.append("Accuracy")
         pp_names.append("Positive")
         if len(self.times) > 0:
@@ -139,7 +140,7 @@ class BinarySegMetric(PVmetric):
 
         pp_values = []
 
-        num_examples = (self.tp + self.fn + self.tn + self.tp)
+        num_examples = (self.tp + self.fn + self.tn + self.fp)
 
         iou = self.tp / (self.tp + self.fp + self.fn)
 
@@ -150,6 +151,7 @@ class BinarySegMetric(PVmetric):
         pp_values.append(tp / (tp + self.fp))
         pp_values.append(tn / (tn + self.fn))
         pp_values.append(tp / (tp + self.fn))
+        pp_values.append(tn / (tn + self.fp))
         pp_values.append((tp + tn) / num_examples)
         pp_values.append((tp + self.fp) / num_examples)
 
