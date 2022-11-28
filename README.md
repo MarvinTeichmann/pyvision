@@ -1,7 +1,7 @@
 Pyvision
 ========
 
-A collection of framework independend tools for computer vision in python.
+A collection of framework independend tools for computer vision in python. Check out the [Tutorial](tutorial) for an easy introduction.
 
 
 Getting started
