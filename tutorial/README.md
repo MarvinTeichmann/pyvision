@@ -42,9 +42,9 @@ Pyvision Interfaces
 
 Pyvision has three interfaces, which all can be used interchangeable to control your experiments:
 
-1) The command-line interface (cli): `pv2`
-2) The self-contained logdir interface
-3) The python interface
+1) The command-line interface (cli): `pv2`.
+2) The self-contained logdir interface.
+3) The python interface.
 
 We have already seen the CLI in action. It is quite self-explanatory. Run `pv2 --help` and `pv2 train --help` to explore it further.   
 
@@ -56,7 +56,7 @@ The third interface is implemented in `pyvision.tools` and is very useful to aut
 Create your own Project
 ------------------------
 
-Training a `hello world!` model can become boring quite quickly. However this tutorial can be a very good template and starting point for your own experiments. In order to do so, let's first take a closer look at the [config_file](configs/hello_world.json). This file is the key which controls the experiment. Hyperparameter for your model should be stored here. In addition to the hyperparameter every model should contain a `pyvision` section which tells `pyvision` where it finds the files for your experiment. Let's take a closer look:
+Training a "Hello, world!" model can become boring quite quickly. However this project can be a very good template and starting point for your own experiments. In order to do so, let's first take a closer look at the [config_file](configs/hello_world.json). This file is the key which controls the experiment. Hyperparameter for your model should be stored here. In addition to the hyperparameter every model should contain a `pyvision` section which tells `pyvision` where it finds the files for your experiment. Let's take a closer look:
 
 
 ```
@@ -78,7 +78,7 @@ Training a `hello world!` model can become boring quite quickly. However this tu
     },
 ```
 
-The most attributes are:
+The required attributes are:
 
 1) `entry_point`: The file from where training is started. 
 2) `plotter`: The file implementing plotting.
@@ -90,7 +90,7 @@ The most attributes are:
 
 ### Entry Point 
 
-The file found in `entry_point` contains the start point for pyvision to execute. The file needs to be structured in a certained way to take advantage of all pyvision functionalities. A minimalistic example is implemented in by [hello.py](model/hello.py). Pyvision expects to find a function with the following interface here:
+The parameter `entry_point` is a pointer to the code which is executed by pyvision. The corresponding python file needs to be structured in a certained way to take advantage of all pyvision functionalities. A minimalistic example is implemented in by [hello.py](model/hello.py). Pyvision expects to find a function with the following interface here:
 
 ```
 def create_pyvision_model(conf, logdir, init_training=True, debug=False):   
@@ -98,11 +98,11 @@ def create_pyvision_model(conf, logdir, init_training=True, debug=False):
     return model
 ```
 
-This function is given a `config`, `logdir` and whether to is expected to create a class object with the following attributes:
+This function is given the `config` and `logdir` of the model and is expected to create a class object with the following attributes: 
 
-1) `fit(self, max_epochs=None)`: When called train model.   
-2) `evaluate(self, epoch)`: When called evaluate model.   
-3) `load_from_logdir(self, logdir=None)`: When called load model from logdir.
+1) `fit(self, max_epochs=None)`: When called train the model.   
+2) `evaluate(self, epoch)`: When called evaluate the model.   
+3) `load_from_logdir(self, logdir=None)`: When called load the model from logdir.
 
 That is it! All you need to build a pyvision project. A minimalistic implementation of such a class can be found in [hello.py::PVControll](model/hello.py). One more advice: I highly recommend to implement training, evaluation and the model building in seperate modules and use high-level function calls from `PVControll` to imported python models. Otherwise the file can become very large quickly. Happy Coding!
 
