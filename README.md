@@ -58,7 +58,26 @@ norm_img = mimage.normalize(img, whitening=False)
 Pyvision: Organize your experiments
 ------------------------------------
 
+Pyvision provides a framework and command line tools to organize your experiments. Please check out the Pyvision [Tutorial](tutorial). The main modules are:
 
+1) `organizer`: To create and use self-contained logdirs
+2) `logger`: Store important values like loss for each epoch of training
+3) `plotter`: Plot and compare values.
+
+
+Pyvision expects two environoment variabels to be set. To do so put the following lines into your .profile, .zsh_rc or bash_rc:
+
+```
+export PV_DIR_DATA="/scratch/ssdfs2/DATA/"
+export PV_DIR_RUNS="/nfs/marvfs/RUNS"
+```
+
+In python you will be able to acess those variables using:
+
+```
+data_dir = os.environ["PV_DIR_DATA"]
+run_dir = os.environ["PV_DIR_RUNS"]
+```
 
 
 
