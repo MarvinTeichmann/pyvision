@@ -1,7 +1,7 @@
 Pyvision Tutorial
 ==================
 
-This tutorial contains a minimalistic `hello world` pyvision project. This setup can be used as template for your own projects.
+This tutorial contains a minimalistic "Hello, World!" pyvision project. This setup can be used as template for your own projects.
 
 Setup
 ------
@@ -12,10 +12,10 @@ Before using this tutorial, please install pyvision as discussed [here](../READM
 Using pyvision
 ---------------
 
-In order to use pyvision with the hello world model run the following line, which will create a self-contained train_dir with a copy of all source files from which training can be started. 
+In order to use pyvision with the "Hello, World!" model run the following line, which will create a self-contained train_dir with a copy of all source files from which training can be started. 
 
 `
-python train.py configs/hello_world.json`
+python train.py configs/hello_world.json
 `
 
 Training from the created logdir can than be started using the command line interface:

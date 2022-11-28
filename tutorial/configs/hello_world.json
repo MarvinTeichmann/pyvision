@@ -48,6 +48,6 @@
         "default_device": "cpu"
     },
     "model": {
-        "keyword": "Hello World!"
+        "keyword": "Hello, World!"
     }
 }
