@@ -20,6 +20,10 @@ import logging
 
 from time import sleep
 
+import pyvision
+import pyvision.logger
+import pyvision.evaluation.distributions as dist
+
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     level=logging.INFO,
@@ -39,20 +43,24 @@ class PVControll:
 
         self.conf = conf
         self.logdir = logdir
+
         # flag: --debug
         self.debug = debug
         self.init_training = init_training
+
+        summary_file = os.path.join(logdir, "summary.log.hdf5")
+        self.logger = pyvision.logger.Logger(filename=summary_file)
 
         if debug:
             self.set_conf_debug()
 
     def set_conf_debug(self):
         """
-        Set the model into debug mode. Reduce num epochs and complexity of model.
+        Set the model into debug mode. Reduce epochs and complexity of model.
         """
 
         self.conf["model"]["keyword"] = "Debug?"
-        self.conf["training"]["num_epochs"] = 2
+        self.conf["training"]["num_epochs"] = 4
         self.conf["training"]["steps_per_epoch"] = 3
         self.conf["training"]["default_device"] = "cpu"
 
@@ -74,7 +82,31 @@ class PVControll:
         keyword = self.conf["model"]["keyword"]
         logging.info("Evaluating Epoch {}...".format(epoch))
         sleep(1)
-        logging.info("    Model says: {}".format(keyword))
+
+        rng_error = 1 / (epoch + 1) * dist.skewed_normal(0.2)
+        performance = 1 - rng_error
+
+        logging.info(
+            "    Model says: {} With performance {:0.4f}".format(
+                keyword, performance
+            )
+        )
+
+        return performance
+
+    def _finalize_epoch(self, epoch):
+        """Run end of epoch stuff."""
+
+        result = self.evaluate(epoch)
+
+        # Log results
+        self.logger.init_step(epoch)
+        self.logger.add_value(epoch, "Epoch", epoch)
+        self.logger.add_value(result, "Performance", epoch, prefix="Val")
+        self.logger.add_value(
+            result ** 2, "PerformanceSquare", epoch, prefix="Val"
+        )
+        self.logger.save()
 
     def fit(self, max_epochs=None):
 
@@ -84,11 +116,11 @@ class PVControll:
 
         for epoch in range(num_epochs):
             logging.info(
-                "Training epoch {} / {} ... ".format(epoch, num_epochs)
+                "Training epoch {:2d} / {:2d} ... ".format(epoch, num_epochs)
             )
             sleep(2)
 
-            self.evaluate(epoch)
+            self._finalize_epoch(epoch)
 
 
 if __name__ == "__main__":

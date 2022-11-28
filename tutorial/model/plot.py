@@ -18,11 +18,32 @@ import scipy as scp
 
 import logging
 
+from pyvision.logger import Logger
+from pyvision.plotter import Plotter as PVPlotter
+
+
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     level=logging.INFO,
     stream=sys.stdout,
 )
+
+
+def get_pyvision_plotter(conf, logdirs, names=None):
+
+    summary_name = "summary.log.hdf5"
+
+    filenames = [os.path.join(name, summary_name) for name in logdirs]
+    loggers = [Logger().load(file) for file in filenames]
+    if names is None:
+        names = [os.path.basename(name) for name in logdirs]
+
+    return Plotter(loggers, names, conf)
+
+
+class Plotter(PVPlotter):
+    def __init__(self, loggers, names, conf):
+        super().__init__(loggers, names, conf)
 
 
 if __name__ == "__main__":
