@@ -18,13 +18,9 @@ In order to use pyvision with the "Hello, World!" model run the following line, 
 python train.py configs/hello_world.json
 `
 
-Training from the created logdir can than be started using the command line interface:
+Training from the created logdir can than be started using the command line interface: `pv2 train <logdir>`
 
-`
-pv2 train <logdir>
-`
-
-In order to skip this step and start training immediately when the logdir is created use
+In order to start training immediately try using:
 
 ```
 python train.py configs/hello_world.json --train # or
