@@ -45,8 +45,8 @@ def load(fname):
         return json.loads(jsmin)
 
 
-read = save
-write = load
+read = load
+write = save
 
 
 def dump(jdict, file, *args, **kwargs):
