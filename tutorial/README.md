@@ -6,11 +6,7 @@ This tutorial contains a minimalistic `hello world` pyvision project. This setup
 Setup
 ------
 
-Before using this Tutorial, please install as discussed [here](../README.md), e.g. by running: 
-
-`
-pip install git+https://github.com/MarvinTeichmann/pyvision.git
-`
+Before using this tutorial, please install pyvision as discussed [here](../README.md), e.g. by running: `pip install git+https://github.com/MarvinTeichmann/pyvision.git`
 
 
 Using pyvision
