@@ -1,7 +1,7 @@
 """
 The MIT License (MIT)
 
-Copyright (c) 2022 Marvin Teichmann
+Copyright (c) 2021 Marvin Teichmann
 Email: marvin.teichmann@googlemail.com
 
 The above author notice shall be included in all copies or
@@ -18,14 +18,12 @@ import scipy as scp
 
 import logging
 
-from pyvision.tools import create_training as train
-
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
 if __name__ == "__main__":
-    args = train.get_parser().parse_args()
-
-    logdir = train.main(args)
+    logging.info("Hello World.")

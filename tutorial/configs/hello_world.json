@@ -1,0 +1,53 @@
+{
+    "pyvision": {
+        "project_name": "hello_world",
+        "entry_point": "../model/hello.py",
+        "plotter": "../model/plot.py",
+        "required_packages": [
+            // source files which should be tracked
+            "../model"
+        ],
+        "optional_packages": [
+            // source files which may be tracked
+            "../../pyvision",
+            "../../mutils"
+        ],
+        // Copy packages to logdir?
+        "copy_required_packages": true,
+        "copy_optional_packages": true
+    },
+    "plotting": {
+        "defaults": {
+            "plot": [
+                "Average Precision",
+                "Average Precision",
+                "Average Precision",
+                "ROC AUC",
+                "ROC AUC"
+            ],
+            "prefixes": [
+                "Val",
+                "Train",
+                "Old",
+                "Val",
+                "Old"
+            ],
+            "titles": [
+                "Validation AP",
+                "Train AP",
+                "Old AP",
+                "Val AUC",
+                "Old AUC"
+            ]
+        },
+        "num_smoothing_samples": 12
+    },
+    "training": {
+        "num_epochs": 10,
+        "steps_per_epoch": 5,
+        "default_device": "cpu"
+    },
+    "model": {
+        "keyword": "Hello World!"
+    }
+}
