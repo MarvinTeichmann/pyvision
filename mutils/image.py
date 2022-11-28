@@ -16,12 +16,14 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
-def normalize(img, whitening=False, verbose=True):
+def normalize(img, whitening=False, verbose=False):
 
     img = img.astype(np.float32)
 
@@ -70,5 +72,5 @@ def show(*args, nrows=1, backend=None, title=None, **kwargs):
 plot = show
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.info("Hello World.")

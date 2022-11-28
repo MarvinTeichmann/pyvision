@@ -28,51 +28,58 @@ from mutils import json
 # import matplotlib.pyplot as plt
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
 def get_parser():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-    parser = ArgumentParser(description=__doc__,
-                            formatter_class=ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('logdir', nargs='*', type=str,
-                        help="directories to plot.")
+    parser = ArgumentParser(
+        description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter
+    )
 
-    parser.add_argument('--default', action='store_true',
-                        help="Use default conf of plotter.")
+    parser.add_argument(
+        "logdir", nargs="*", type=str, help="directories to plot."
+    )
 
-    parser.add_argument('--eval', type=str,
-                        help="Use source found in plotter instead.")
+    parser.add_argument(
+        "--default", action="store_true", help="Use default conf of plotter."
+    )
 
-    parser.add_argument('--embed', action='store_true')
+    parser.add_argument(
+        "--eval", type=str, help="Use source found in plotter instead."
+    )
 
-    parser.add_argument('--compact', action='store_true')
+    parser.add_argument("--embed", action="store_true")
 
-    parser.add_argument("--gpus", type=str,
-                        help="gpus to use")
+    parser.add_argument("--compact", action="store_true")
 
-    parser.add_argument("--eval_file", type=str,
-                        default="eval_out.log")
+    parser.add_argument("--gpus", type=str, help="gpus to use")
 
-    parser.add_argument("--name", type=str,
-                        default='eval_out')
+    parser.add_argument("--eval_file", type=str, default="eval_out.log")
 
-    parser.add_argument("--checkpoint", type=str,
-                        default=None)
+    parser.add_argument("--name", type=str, default="eval_out")
 
-    parser.add_argument("--data", type=str,
-                        default=None)
+    parser.add_argument("--checkpoint", type=str, default=None)
 
-    parser.add_argument("--level", type=str,
-                        default="mayor")
+    parser.add_argument("--data", type=str, default=None)
 
-    parser.add_argument('--sys_packages', action='store_true',
-                        help='Use system source for all packages.')
-    parser.add_argument('--add_packages', action='store_true',
-                        help='Use local source for additional_packages.')
+    parser.add_argument("--level", type=str, default="mayor")
+
+    parser.add_argument(
+        "--sys_packages",
+        action="store_true",
+        help="Use system source for all packages.",
+    )
+    parser.add_argument(
+        "--add_packages",
+        action="store_true",
+        help="Use local source for additional_packages.",
+    )
 
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
@@ -88,11 +95,15 @@ def main(args):
 
     logdir = args.logdir[0]
     logdir = os.path.realpath(logdir)
-    config_file = os.path.join(logdir, 'config.json')
-    main_script = os.path.join(logdir, 'model.py')
+    config_file = os.path.join(logdir, "config.json")
+    main_script = os.path.join(logdir, "model.py")
 
-    source_dir = os.path.join(logdir, 'source')
-    add_source = os.path.join(source_dir, 'additional_packages')
+    source_dir = os.path.join(logdir, "source")
+    add_source = os.path.join(source_dir, "additional_packages")
+
+    # import torch
+
+    # torch.cuda.set_per_process_memory_fraction(0.18, 0)
 
     logging.info("Loading Config file: {}".format(config_file))
     config = json.load(config_file)
@@ -106,9 +117,9 @@ def main(args):
     # Create an output log file
     logfile = os.path.join(imgdir, args.eval_file)
     logging.info("All output will be written to: {}".format(logfile))
-    pvutils.create_filewrite_handler(logfile, mode='a')
+    pvutils.create_filewrite_handler(logfile, mode="a")
 
-    m = imp.load_source('model', main_script)
+    m = imp.load_source("model", main_script)
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
 
@@ -121,19 +132,32 @@ def main(args):
 
     if args.eval is None:
         pveval = model.pv_evaluator.get_pyvision_evaluator(
-            config, model, imgdir=imgdir, dataset=args.data)
+            config, model, imgdir=imgdir, dataset=args.data
+        )
     else:
-        evaluator = imp.load_source('evaluator', args.eval)
+        evaluator = imp.load_source("evaluator", args.eval)
+        # TODO FIX!!!
         pveval = evaluator.get_pyvision_evaluator(
-            config, model, imgdir=imgdir, dataset=args.data)
+            config, model.model, imgdir=imgdir, dataset=args.data
+        )
+
+    try:
+        model.logger.discard_data()
+    except:
+        pass
 
     start_time = time.time()
     pveval.evaluate(level=args.level)
     end_time = (time.time() - start_time) / 60
     logging.info("Finished training in {} minutes".format(end_time))
 
+    try:
+        model.logger.save(os.path.join(imgdir, "eval.log.hdf5"))
+    except:
+        pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = get_parser().parse_args()
     main(args)
 

@@ -28,7 +28,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
 
 
 class Logger():
-    def __init__(self, filename=None):
+    def __init__(self, filename="summary.log.hdf5"):
         self.data = {}
         self.steps = []
         self.filename = filename
