@@ -36,6 +36,30 @@ python train.py --help
 
 In order to see a full list of tools available use: `pv2 --help`.
 
+### Plotting
+
+Running experiments is fun, but the real science starts with evaluation. So lets create some plots. First, lets run two experiements on our two GPUs:
+
+```
+python train.py configs/hello_world.json --train  --bench plotting --name run0 --gpus 0
+python train.py configs/hello_world.json --train  --bench plotting --name run1 --gpus 1
+```
+
+This should create two logdirs under namely:
+
+``
+<LOGDIR0> := $PV_DIR_DATA/hello_world/plotting/run0_hello_world_<TIMESTAMP>
+<LOGDIR1> := $PV_DIR_DATA/hello_world/plotting/run1_hello_world_<TIMESTAMP>
+``
+
+Now we can create a plot looking at the training performance of run0: `pv2 plot <LOGDIR0>`. In order to compare the performance of our two experiments run:
+
+``
+pv2 plot <LOGDIR0> <LOGDIR1>
+``
+
+Of course you need to replace `<LOGDIR0>` and `<LOGDIR1>` with our own logdirs.
+
 
 Pyvision Interfaces
 --------------------
