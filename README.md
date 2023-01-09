@@ -80,6 +80,26 @@ run_dir = os.environ["PV_DIR_RUNS"]
 ```
 
 
+Troubleshoot
+--------------
+
+On Mac OS install `hdf5` and other relevant libraries using `brew install hdf5 c-blosc lzo bzip2`. Find `hdf5` install dir using:
+
+```
+brew info -q hdf5 c-blosc lzo bzip2|grep '/opt/homebrew
+```
+
+and then run: (hdf5 version number may differ)
+
+```
+
+HDF5_DIR=/opt/homebrew/Cellar/hdf5/1.12.2_2/ pip install tables
+```
+
+
+
+
+
 
 
 
