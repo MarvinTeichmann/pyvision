@@ -112,6 +112,7 @@ def init_logdir(config, cfg_file, logdir):
         config = json.load(cfg_file)
 
     logging.info("Initializing Logdir: {}".format(logdir))
+
     if not os.path.exists(logdir):
         os.makedirs(logdir)
     else:
