@@ -24,7 +24,6 @@ logging.basicConfig(
 
 
 def normalize(img, whitening=False, verbose=False):
-
     img = img.astype(np.float32)
 
     if np.abs(np.max(img) - np.min(img)) < 1e-10:
@@ -36,7 +35,6 @@ def normalize(img, whitening=False, verbose=False):
     img = (img - np.min(img)) / (np.max(img) - np.min(img))
 
     if whitening:
-
         std_cap = 1.0 / np.sqrt((len(img)))
 
         adjusted_stddev = max(np.std(img), std_cap)
@@ -45,8 +43,7 @@ def normalize(img, whitening=False, verbose=False):
     return img
 
 
-def show(*args, nrows=1, backend=None, title=None, **kwargs):
-
+def show(*args, nrows=1, backend=None, title=None, cmap=None, **kwargs):
     if backend is not None:
         matplotlib.use(backend)
 
@@ -61,9 +58,9 @@ def show(*args, nrows=1, backend=None, title=None, **kwargs):
 
     if num_images > 1:
         for ax, img in zip(axes.flatten(), args):
-            ax.imshow(img)
+            ax.imshow(img, cmap=cmap)
     else:
-        axes.imshow(args[0])
+        axes.imshow(args[0], cmap=cmap)
 
     plt.show()
     return fig
