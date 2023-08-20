@@ -173,7 +173,7 @@ class Plotter(object):
         # plt.rcParams.update({'font.size': 14})
         # fig, ax = plt.subplots(figsize=(6.4, 4.8))
         if ax is None:
-            fig, ax = plt.subplots()
+            fig, ax = plt.subplots(figsize=(10, 5))
 
         iterator = zip(plot_data, names, steps)
 
