@@ -24,17 +24,18 @@ from multiprocessing import Process
 
 from mutils import json
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.info("Hello World.")
 
 
 def robust_training(model, restarts=5, subprocess=False):
-
     if not subprocess:
         robust_training_exceptions(model, restarts=restarts)
     else:
@@ -51,7 +52,6 @@ def robust_training_exceptions(model, restarts=5):
     model.epoch = 0
 
     while True:
-
         try:
             model.load_from_logdir()
             logging.info("Starting training at epoch: {}".format(model.epoch))
@@ -70,8 +70,9 @@ def robust_training_exceptions(model, restarts=5):
             print()
 
             crash_count += 1
-            logging.warning("Training was KILLED, count: {}".format(
-                crash_count))
+            logging.warning(
+                "Training was KILLED, count: {}".format(crash_count)
+            )
 
             if crashed_epoch >= model.epoch or restarts == 0:
                 crash_epoch_count += 1
@@ -79,7 +80,9 @@ def robust_training_exceptions(model, restarts=5):
                     logging.info(
                         "Model crashed {} times at epoch {}. "
                         "Stopping training.".format(
-                            restarts + 1, crashed_epoch))
+                            restarts + 1, crashed_epoch
+                        )
+                    )
                     break
             else:
                 crashed_epoch = model.epoch
@@ -98,12 +101,13 @@ def robust_training_subprocess(model, restarts=5):
 
     model.epoch = 0
 
-    logging.warning("Run training in a seperate process."
-                    " Make sure that your model supports multiprocessing or"
-                    " deactivate robust training.")
+    logging.warning(
+        "Run training in a seperate process."
+        " Make sure that your model supports multiprocessing or"
+        " deactivate robust training."
+    )
 
     while True:
-
         model.load_from_logdir()
         logging.info("Starting training at epoch: {}".format(model.epoch))
 
@@ -118,8 +122,9 @@ def robust_training_subprocess(model, restarts=5):
             # traceback.print_exc()
 
             crash_count += 1
-            logging.warning("Training was KILLED, count: {}".format(
-                crash_count))
+            logging.warning(
+                "Training was KILLED, count: {}".format(crash_count)
+            )
 
             if crashed_epoch >= model.epoch:
                 crash_epoch_count += 1
@@ -127,7 +132,9 @@ def robust_training_subprocess(model, restarts=5):
                     logging.info(
                         "Model crashed {} times at epoch {}. "
                         "Stopping training.".format(
-                            restarts + 1, crashed_epoch))
+                            restarts + 1, crashed_epoch
+                        )
+                    )
                     break
             else:
                 crashed_epoch = model.epoch
@@ -140,20 +147,20 @@ def robust_training_subprocess(model, restarts=5):
 def set_gpus_to_use(args, gpus=None):
     """Set the gpus to use."""
     if gpus is not None:
-        os.environ['CUDA_VISIBLE_DEVICES'] = gpus
+        os.environ["CUDA_VISIBLE_DEVICES"] = gpus
 
     if args.gpus is None:
-        if 'TV_USE_GPUS' in os.environ:
-            if os.environ['TV_USE_GPUS'] == 'force':
-                logging.error('Please specify a GPU.')
-                logging.error('Usage {} --gpus <ids>'.format(sys.argv[0]))
+        if "TV_USE_GPUS" in os.environ:
+            if os.environ["TV_USE_GPUS"] == "force":
+                logging.error("Please specify a GPU.")
+                logging.error("Usage {} --gpus <ids>".format(sys.argv[0]))
                 exit(1)
     else:
         logging.info("GPUs are set to: %s", args.gpus)
-        os.environ['CUDA_VISIBLE_DEVICES'] = args.gpus
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpus
 
 
-def create_filewrite_handler(logging_file, mode='w'):
+def create_filewrite_handler(logging_file, mode="w"):
     """
     Create a filewriter handler.
 
@@ -173,10 +180,11 @@ def create_filewrite_handler(logging_file, mode='w'):
         os.makedirs(target_dir)
     filewriter = logging.FileHandler(logging_file, mode=mode)
     formatter = logging.Formatter(
-        '%(asctime)s %(name)-3s %(levelname)-3s %(message)s')
+        "%(asctime)s %(name)-3s %(levelname)-3s %(message)s"
+    )
     filewriter.setLevel(logging.INFO)
     filewriter.setFormatter(formatter)
-    logging.getLogger('').addHandler(filewriter)
+    logging.getLogger("").addHandler(filewriter)
     return filewriter
 
 
@@ -187,13 +195,13 @@ def initialize_output_dir(cfg, cfg_file, output_dir, do_logging=True):
         logging.warning("Path exists: {}".format(output_dir))
         logging.warning("Potentially overwriting existing model.")
 
-    target_file = os.path.join(output_dir, 'conf.json')
-    with open(target_file, 'w') as outfile:
+    target_file = os.path.join(output_dir, "conf.json")
+    with open(target_file, "w") as outfile:
         json.dump(cfg, outfile, indent=2, sort_keys=True)
 
     base_path = os.path.dirname(os.path.realpath(cfg_file))
 
-    for dir_name in cfg['copy_dirs']:
+    for dir_name in cfg["copy_dirs"]:
         src = os.path.join(base_path, dir_name)
         src = os.path.realpath(src)
 
@@ -212,8 +220,9 @@ def initialize_output_dir(cfg, cfg_file, output_dir, do_logging=True):
     return
 
 
-class ExpoSmoother():
+class ExpoSmoother:
     """docstring for expo_smoother"""
+
     def __init__(self, decay=0.9):
         self.weights = None
         self.decay = decay
@@ -231,23 +240,24 @@ class ExpoSmoother():
         return self.weights.tolist()
 
 
-class MedianSmoother():
+class MedianSmoother:
     """docstring for expo_smoother"""
+
     def __init__(self, num_entries=50):
         self.weights = None
-        self.num = 50
+        self.num = num_entries
 
     def update_weights(self, l):
         l = np.array(l).tolist()
         if self.weights is None:
             self.weights = [[i] for i in l]
-            return [np.median(w[-self.num:]) for w in self.weights]
+            return [np.nanmedian(w[-self.num :]) for w in self.weights]
         else:
             for i, w in enumerate(self.weights):
                 w.append(l[i])
-            if len(self.weights) > 20 * self.num:
-                self.weights = [w[-self.num:] for w in self.weights]
-            return [np.median(w[-self.num:]) for w in self.weights]
+            if len(self.weights) > 2 * self.num:
+                self.weights = [w[-self.num :] for w in self.weights]
+            return [np.nanmedian(w[-self.num :]) for w in self.weights]
 
     def get_weights(self):
-        return [np.median(w[-self.num:]) for w in self.weights]
+        return [np.nanmedian(w[-self.num :]) for w in self.weights]

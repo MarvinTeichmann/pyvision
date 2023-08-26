@@ -24,16 +24,32 @@ import shutil
 
 from pathlib import Path
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+
+from sklearn.model_selection import KFold
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
-class RamDiskManager():
+def do_kfold(index, fold=0, folds=5, seed=42, **kwargs):
+    kf = KFold(n_splits=folds, shuffle=True, random_state=seed)
 
+    train_split, val_split = [i for i in kf.split(index)][fold]
+
+    train_index = [item for i, item in enumerate(index) if i in train_split]
+
+    val_index = [item for i, item in enumerate(index) if i in val_split]
+
+    return train_index, val_index
+
+
+class RamDiskManager:
     def __init__(
-        self, slow_root, fast_root='/dev/shm',
-            copy=1.0, recopy=0.02, buffer=1):
+        self, slow_root, fast_root="/dev/shm", copy=1.0, recopy=0.02, buffer=1
+    ):
         self.slow_root = slow_root
         self.fast_root = fast_root
         self.copy = copy
@@ -41,14 +57,14 @@ class RamDiskManager():
         self.buffer = buffer
 
     def get_path(self, path, copy=None):
-
         target = os.path.join(self.fast_root, path)
         source = os.path.join(self.slow_root, path)
         lock_file = os.path.join(self.fast_root, path + ".lock")
 
-        assert target != path, \
-            (f"Absolute path given. Path should be a relative path"
-             f"{self.slow_root}")
+        assert target != path, (
+            f"Absolute path given. Path should be a relative path"
+            f"{self.slow_root}"
+        )
 
         if os.path.exists(target):
             if not os.path.exists(lock_file):
@@ -63,7 +79,7 @@ class RamDiskManager():
             copy = self.copy
 
         if random.random() < copy:
-            free_space = shutil.disk_usage(self.fast_root)[2] / 1024 ** 3
+            free_space = shutil.disk_usage(self.fast_root)[2] / 1024**3
             if free_space < self.buffer:
                 return source
 
@@ -85,7 +101,7 @@ class RamDiskManager():
                 shutil.copy2(source, target)
                 os.remove(lock_file)
                 return target
-            except: # NOQA
+            except:  # NOQA
                 return source
         else:
             return source
@@ -100,7 +116,8 @@ class RamDiskManager():
 
         os.remove(lock_file)
 
-if __name__ == '__main__':
-    rmd = RamDiskManager(slow_root='/')
+
+if __name__ == "__main__":
+    rmd = RamDiskManager(slow_root="/")
     this_file = os.path.realpath(__file__)[1:]
     rmd.get_path(this_file, copy=True)

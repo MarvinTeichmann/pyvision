@@ -219,6 +219,8 @@ class Plotter(object):
             if show_legend:
                 ax.legend(loc=0)
 
+            plt.tight_layout()
+
         if show is True:
             plt.pause(0.01)
 
