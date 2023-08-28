@@ -61,7 +61,7 @@ def sliding_window_partition(all_objects, group_size, overlap_ratio):
     - A list of lists, each representing a partition of the input objects.
     """
     max_overlap = group_size // overlap_ratio
-    step_size = group_size - max_overlap
+    step_size = int(group_size - max_overlap)
     num_groups = len(all_objects) // step_size
     groups = []
     objects = all_objects
