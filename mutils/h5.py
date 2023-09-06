@@ -12,11 +12,16 @@ This file is written in Python 3.8 and tested under Linux.
 
 import os
 import sys
-
-import h5py
 import numpy as np
 
 import logging
+
+# os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
+
+from importlib import reload
+import h5py
+
+reload(h5py)
 
 
 logging.basicConfig(
@@ -45,23 +50,18 @@ def _write_group(h5file, dictionary, compression_level):
             grp = h5file.create_group(key)
             _write_group(grp, value, compression_level)
         else:
-            if (
-                isinstance(value, np.ndarray) and value.ndim == 0
-            ):  # Check if scalar
-                h5file.create_dataset(key, data=value)
-            elif isinstance(
-                value, (int, float, str)
-            ):  # If it's a basic datatype
-                h5file.create_dataset(
-                    key, data=value
-                )  # No compression for these
-            else:
+            try:
                 h5file.create_dataset(
                     key,
                     data=value,
                     compression="gzip",
                     compression_opts=compression_level,
                 )
+            except TypeError:
+                logging.debug(
+                    f"Warning: Could not compress dataset with key '{key}'. Saving without compression."
+                )
+                h5file.create_dataset(key, data=value)
 
 
 def load_dict_from_hdf5(filename):
