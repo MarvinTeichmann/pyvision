@@ -101,9 +101,7 @@ def generate_feature_partitions(num_objects, group_size, overlap_ratio):
         divisor = overlap_ratio**i
         for j in range(int(divisor)):
             subset = [i for i in all_objects if i % divisor == j]
-            groups += sliding_window_partition(
-                subset, group_size, overlap_ratio
-            )
+            groups += sliding_window_partition(subset, group_size, overlap_ratio)
 
     return groups
 
@@ -122,9 +120,7 @@ def create_partitions_check_overlap(num_objects, group_ratio, overlap_ratio):
     - A list of lists, each representing a partition of the input objects.
     """
     group_size = num_objects // group_ratio
-    groups = generate_feature_partitions(
-        num_objects, group_size, overlap_ratio
-    )
+    groups = generate_feature_partitions(num_objects, group_size, overlap_ratio)
 
     assert all(len(group) == group_size for group in groups)
 
@@ -132,6 +128,13 @@ def create_partitions_check_overlap(num_objects, group_ratio, overlap_ratio):
     print(max_overlap)
     for i in range(len(groups)):
         for j in range(i + 1, len(groups)):
+            if len(set(groups[i]).intersection(groups[j])) > max_overlap:
+                logging.error(
+                    "Overlap: {} (Max: {})".format(
+                        len(set(groups[i]).intersection(groups[j])),
+                        max_overlap,
+                    )
+                )
             assert len(set(groups[i]).intersection(groups[j])) <= max_overlap
 
     print(f"Generated {len(groups)} groups")
