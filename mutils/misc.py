@@ -18,7 +18,7 @@ import logging
 import json
 
 
-def list_files_by_extension(dirname, extension=".npz"):
+def list_files_by_extension(dirname, extension=".npz", concat=True):
     """
     List all files in a directory with a given file extension and sort them
     alphabetically.
@@ -36,6 +36,9 @@ def list_files_by_extension(dirname, extension=".npz"):
 
     files = [file for file in os.listdir(dirname) if file.endswith(extension)]
     files.sort()
+
+    if concat:
+        files = [os.path.join(dirname, file) for file in files]
 
     return files
 
