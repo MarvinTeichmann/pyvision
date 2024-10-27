@@ -29,9 +29,11 @@ from mutils import json
 from pyvision import utils as pvutils
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
 def change_value(config, key, new_value):
@@ -45,15 +47,19 @@ def change_value(config, key, new_value):
     reduce(dict.__getitem__, keys, config)[lastkey] = new_value
 
 
-def get_logdir_name(project=None, bench=None,
-                    cfg_file=None,
-                    prefix=None, config=None,
-                    timestamp=True):
+def get_logdir_name(
+    project=None,
+    bench=None,
+    cfg_file=None,
+    prefix=None,
+    config=None,
+    timestamp=True,
+):
 
-    root_dir = os.path.join(os.environ['PV_DIR_RUNS'])
+    root_dir = os.path.join(os.environ["PV_DIR_RUNS"])
 
     if config is not None:
-        project = config['pyvision']['project_name']
+        project = config["pyvision"]["project_name"]
 
     if project is not None:
         root_dir = os.path.join(root_dir, project)
@@ -62,9 +68,9 @@ def get_logdir_name(project=None, bench=None,
         root_dir = os.path.join(root_dir, bench)
 
     if cfg_file is not None:
-        json_name = cfg_file.split('/')[-1].replace('.json', '')
+        json_name = cfg_file.split("/")[-1].replace(".json", "")
     else:
-        json_name = 'unnamed'
+        json_name = "unnamed"
 
     if prefix is not None:
         run_name = prefix + "_" + json_name
@@ -73,18 +79,18 @@ def get_logdir_name(project=None, bench=None,
 
     if timestamp:
 
-        date = datetime.now().strftime('%Y_%m_%d_%H.%M')
-        run_name = '%s_%s' % (run_name, date)
+        date = datetime.now().strftime("%Y_%m_%d_%H.%M")
+        run_name = "%s_%s" % (run_name, date)
 
     logdir = os.path.join(root_dir, run_name)
     return logdir
 
 
-def load_model_from_logdir(logdir, filewriter=False):
-    config_file = os.path.join(logdir, 'config.json')
-    main_script = os.path.join(logdir, 'model.py')
-    source_dir = os.path.join(logdir, 'source')
-    add_source = os.path.join(source_dir, 'additional_packages')
+def load_model_from_logdir(logdir, filewriter=False, init_training=True):
+    config_file = os.path.join(logdir, "config.json")
+    main_script = os.path.join(logdir, "model.py")
+    source_dir = os.path.join(logdir, "source")
+    add_source = os.path.join(source_dir, "additional_packages")
 
     logging.info("Loading Config file: {}".format(config_file))
     config = json.load(config_file)
@@ -94,13 +100,15 @@ def load_model_from_logdir(logdir, filewriter=False):
 
     # Create an output log file
     if filewriter:
-        logfile = os.path.join(logdir, 'output.log')
+        logfile = os.path.join(logdir, "output.log")
         logging.info("All output will be written to: {}".format(logfile))
-        pvutils.create_filewrite_handler(logfile, mode='a')
+        pvutils.create_filewrite_handler(logfile, mode="a")
 
-    m = imp.load_source('model', main_script)
+    m = imp.load_source("model", main_script)
 
-    model = m.create_pyvision_model(conf=config, logdir=logdir)
+    model = m.create_pyvision_model(
+        conf=config, logdir=logdir, init_training=init_training
+    )
     model.load_from_logdir()
 
     return model
@@ -120,37 +128,38 @@ def init_logdir(config, cfg_file, logdir):
         logging.warning("Potentially overwriting existing model.")
 
     # Create an output log file
-    logfile = os.path.join(logdir, 'output.log')
+    logfile = os.path.join(logdir, "output.log")
     # logging.info("All output will be written to: {}".format(logfile))
     pvutils.create_filewrite_handler(logfile)
 
     basedir = os.path.dirname(os.path.realpath(cfg_file))
 
     # Copy the main model file
-    source_file = os.path.join(basedir, config['pyvision']['entry_point'])
+    source_file = os.path.join(basedir, config["pyvision"]["entry_point"])
     target_file = os.path.join(logdir, "model.py")
     copyfile(source_file, target_file)
 
     # Copy the main model file
-    source_file = os.path.join(os.path.dirname(__file__),
-                               "tools/train_logdir.py")
+    source_file = os.path.join(
+        os.path.dirname(__file__), "tools/train_logdir.py"
+    )
     target_file = os.path.join(logdir, "train.py")
     copyfile(source_file, target_file)
 
     # Copy the plotting file
-    source_file = os.path.join(basedir, config['pyvision']['plotter'])
+    source_file = os.path.join(basedir, config["pyvision"]["plotter"])
     target_file = os.path.join(logdir, "plot.py")
     copyfile(source_file, target_file)
 
     # Save config file
-    conffile = os.path.join(logdir, 'config.json')
-    json.dump(config, open(conffile, 'w'), indent=4, sort_keys=True)
+    conffile = os.path.join(logdir, "config.json")
+    json.dump(config, open(conffile, "w"), indent=4, sort_keys=True)
 
-    package_dir = os.path.join(logdir, 'source')
-    if config['pyvision']['copy_required_packages']:
+    package_dir = os.path.join(logdir, "source")
+    if config["pyvision"]["copy_required_packages"]:
         if not os.path.exists(package_dir):
             os.mkdir(package_dir)
-        for dir_name in config['pyvision']['required_packages']:
+        for dir_name in config["pyvision"]["required_packages"]:
             src = os.path.join(basedir, dir_name)
             src = os.path.realpath(src)
 
@@ -160,11 +169,11 @@ def init_logdir(config, cfg_file, logdir):
                 shutil.rmtree(dst)
             shutil.copytree(src, dst)
 
-    if config['pyvision']['copy_optional_packages']:
-        opt_dir = os.path.join(package_dir, 'additional_packages')
+    if config["pyvision"]["copy_optional_packages"]:
+        opt_dir = os.path.join(package_dir, "additional_packages")
         if not os.path.exists(opt_dir):
             os.mkdir(opt_dir)
-        for dir_name in config['pyvision']['optional_packages']:
+        for dir_name in config["pyvision"]["optional_packages"]:
             src = os.path.join(basedir, dir_name)
             src = os.path.realpath(src)
 
@@ -175,5 +184,5 @@ def init_logdir(config, cfg_file, logdir):
             shutil.copytree(src, dst)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.info("Hello World.")

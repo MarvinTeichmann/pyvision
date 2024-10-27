@@ -117,8 +117,13 @@ class Plotter(object):
 
         data = [logger.data[key] for logger in self.loggers]
 
+        import ipdb  # NOQA
+
+        ipdb.set_trace()
+        pass
+
         steps = [step[skip:] for step in self.steps]
-        data = [datum[skip:] for datum in data]
+        data = [datum[s]]
         # data = data[skip:]
 
         if smoothed:
@@ -383,5 +388,4 @@ class Plotter2(Plotter):
             ax.legend(loc=0)
 
 
-if __name__ == "__main__":
-    logging.info("Hello World.")
+if __name__ == "

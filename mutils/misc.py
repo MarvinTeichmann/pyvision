@@ -43,4 +43,14 @@ def list_files_by_extension(dirname, extension=".npz", concat=True):
     return files
 
 
+def get_dirs(dirname, concat=True):
+    files = [d for d in os.listdir(dirname) if os.path.isdir(os.path.join(dirname, d))]
+    files.sort()
+    if concat:
+        files = [os.path.join(dirname, file) for file in files]
+
+    return files
+    
+
+
 read_dir = list_files_by_extension

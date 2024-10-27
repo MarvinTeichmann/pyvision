@@ -138,7 +138,7 @@ def main(args):
         evaluator = imp.load_source("evaluator", args.eval)
         # TODO FIX!!!
         pveval = evaluator.get_pyvision_evaluator(
-            config, model.model, imgdir=imgdir, dataset=args.data
+            config, model, imgdir=imgdir, dataset=args.data
         )
 
     try:

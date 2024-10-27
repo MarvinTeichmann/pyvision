@@ -47,7 +47,7 @@ def normalize(img, whitening=False, verbose=False):
     return img
 
 
-def show(*args, nrows=1, backend=None, title=None, cmap=None, **kwargs):
+def show(*args, nrows=1, backend=None, title=None, cmap=None, show=True, **kwargs):
     if backend is not None:
         matplotlib.use(backend)
 
@@ -66,7 +66,8 @@ def show(*args, nrows=1, backend=None, title=None, cmap=None, **kwargs):
     else:
         axes.imshow(args[0], cmap=cmap)
 
-    plt.show()
+    if show:
+        plt.show()
     return fig
 
 
