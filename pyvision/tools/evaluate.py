@@ -9,7 +9,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import imp
+
+# import imp
+import importlib
+import importlib.util
 import sys
 import argparse
 import time
@@ -119,7 +122,11 @@ def main(args):
     logging.info("All output will be written to: {}".format(logfile))
     pvutils.create_filewrite_handler(logfile, mode="a")
 
-    m = imp.load_source("model", main_script)
+    # m = imp.load_source("model", main_script)
+
+    spec = importlib.util.spec_from_file_location("model", main_script)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
 
@@ -131,12 +138,16 @@ def main(args):
     logging.info("Model loaded. Starting evaluation.")
 
     if args.eval is None:
-        pveval = model.pv_evaluator.get_pyvision_evaluator(
-            config, model, imgdir=imgdir, dataset=args.data
-        )
+        # pveval = model.pv_evaluator.get_pyvision_evaluator(
+        # config, model, imgdir=imgdir, dataset=args.data
+        # )
+        pveval = model.evaluator
     else:
-        evaluator = imp.load_source("evaluator", args.eval)
-        # TODO FIX!!!
+        # evaluator = imp.load_source("evaluator", args.eval)
+        spec = importlib.util.spec_from_file_location("evaluator", args.eval)
+        evaluator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(evaluator)
+
         pveval = evaluator.get_pyvision_evaluator(
             config, model, imgdir=imgdir, dataset=args.data
         )

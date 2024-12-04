@@ -3,7 +3,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import imp
+
+# import imp
+import importlib
+import importlib.util
 import sys
 import argparse
 import time
@@ -24,49 +27,68 @@ from time import sleep
 # import matplotlib.pyplot as plt
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
 def get_parser():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-    parser = ArgumentParser(description=__doc__,
-                            formatter_class=ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("config", type=str,
-                        help="configuration file for run.")
+    parser = ArgumentParser(
+        description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter
+    )
 
-    parser.add_argument("--bench", type=str, default='debug',
-                        help="Subfolder to store all runs.")
+    parser.add_argument("config", type=str, help="configuration file for run.")
 
-    parser.add_argument("--name", type=str,
-                        help="Name for the run.")
+    parser.add_argument(
+        "--bench",
+        type=str,
+        default="debug",
+        help="Subfolder to store all runs.",
+    )
 
-    parser.add_argument("--gpus", type=str,
-                        help="gpus to use")
+    parser.add_argument("--name", type=str, help="Name for the run.")
 
-    parser.add_argument('--notimestamp', action='store_false',
-                        dest='timestamp', help="Run in Debug mode.",
-                        default=True)
+    parser.add_argument("--gpus", type=str, help="gpus to use")
 
-    parser.add_argument('--wait', type=int,
-                        help="Wait till gpus are available.")
+    parser.add_argument(
+        "--notimestamp",
+        action="store_false",
+        dest="timestamp",
+        help="Run in Debug mode.",
+        default=True,
+    )
 
-    parser.add_argument('--debug', action='store_true',
-                        help="Run in Debug mode.")
+    parser.add_argument(
+        "--wait", type=int, help="Wait till gpus are available."
+    )
 
-    parser.add_argument('--train', action='store_true',
-                        help="Do training. \n"
-                        " Default: False; Only Initialize dir.")
+    parser.add_argument(
+        "--debug", action="store_true", help="Run in Debug mode."
+    )
 
-    parser.add_argument('--restarts', type=int,
-                        default=0,
-                        help="Restart training [num] times when crashed.")
+    parser.add_argument(
+        "--train",
+        action="store_true",
+        help="Do training. \n" " Default: False; Only Initialize dir.",
+    )
 
-    parser.add_argument('--subprocess', action='store_true',
-                        help="Run training as subprocess, allowing to restart"
-                             " after segmentation faults.")
+    parser.add_argument(
+        "--restarts",
+        type=int,
+        default=0,
+        help="Restart training [num] times when crashed.",
+    )
+
+    parser.add_argument(
+        "--subprocess",
+        action="store_true",
+        help="Run training as subprocess, allowing to restart"
+        " after segmentation faults.",
+    )
 
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
@@ -84,9 +106,12 @@ def main(args):
     config = json.load(args.config)
 
     logdir = pvorg.get_logdir_name(
-        project=config['pyvision']['project_name'],
-        bench=args.bench, cfg_file=args.config, prefix=args.name,
-        timestamp=args.timestamp)
+        project=config["pyvision"]["project_name"],
+        bench=args.bench,
+        cfg_file=args.config,
+        prefix=args.name,
+        timestamp=args.timestamp,
+    )
 
     pvorg.init_logdir(config, args.config, logdir)
 
@@ -95,6 +120,7 @@ def main(args):
 
     if args.wait:
         import GPUtil
+
         while GPUtil.getGPUs()[0].memoryUtil > 0.1:
             logging.info("GPU 0 is beeing used.")
             GPUtil.showUtilization()
@@ -102,25 +128,29 @@ def main(args):
 
     if args.debug or args.train:
 
-        sfile = config['pyvision']['entry_point']
+        sfile = config["pyvision"]["entry_point"]
 
-        model_file = os.path.realpath(os.path.join(
-            os.path.dirname(args.config), sfile))
+        model_file = os.path.realpath(
+            os.path.join(os.path.dirname(args.config), sfile)
+        )
 
-        assert(os.path.exists(model_file))
+        assert os.path.exists(model_file)
 
-        m = imp.load_source('model', model_file)
+        # m = imp.load_source("model", model_file)
+        spec = importlib.util.spec_from_file_location("model", model_file)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
 
         mymodel = m.create_pyvision_model(
-            config, logdir=logdir, debug=args.debug)
+            config, logdir=logdir, debug=args.debug
+        )
 
         if args.debug:
             restarts = 0
         else:
             restarts = args.restarts
 
-        pvutils.robust_training(mymodel, restarts=restarts,
-                                subprocess=False)
+        pvutils.robust_training(mymodel, restarts=restarts, subprocess=False)
 
         # Do forward pass
         # img_var = Variable(sample['image']).cuda() # NOQA
@@ -132,7 +162,8 @@ def main(args):
 
     return logdir
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = get_parser().parse_args()
     main(args)
 

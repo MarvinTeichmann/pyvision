@@ -9,7 +9,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import imp
+
+# import imp
+import importlib
+import importlib.util
 import sys
 import argparse
 import time
@@ -96,7 +99,11 @@ def main(args):
         plot_file = os.path.join(main_dir, "plot.py")
         logging.info("Using plotter defined in: {}".format(plot_file))
 
-        plotter = imp.load_source("plotter", plot_file)
+        # plotter = imp.load_source("plotter", plot_file)
+
+        spec = importlib.util.spec_from_file_location("plotter", plot_file)
+        plotter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(plotter)
 
     if args.default:
         config = plotter.default_conf

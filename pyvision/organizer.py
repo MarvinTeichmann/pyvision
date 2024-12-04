@@ -11,7 +11,9 @@ from __future__ import print_function
 import os
 import sys
 
-import imp
+# import imp
+import importlib
+import importlib.util
 import logging
 
 import shutil
@@ -104,7 +106,9 @@ def load_model_from_logdir(logdir, filewriter=False, init_training=True):
         logging.info("All output will be written to: {}".format(logfile))
         pvutils.create_filewrite_handler(logfile, mode="a")
 
-    m = imp.load_source("model", main_script)
+    spec = importlib.util.spec_from_file_location("model", main_script)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
 
     model = m.create_pyvision_model(
         conf=config, logdir=logdir, init_training=init_training
