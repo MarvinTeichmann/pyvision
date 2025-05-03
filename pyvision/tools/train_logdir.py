@@ -9,7 +9,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import imp
+
+# import imp
+import importlib
+import importlib.util
 import sys
 import argparse
 import time
@@ -22,8 +25,8 @@ import logging
 
 from datetime import datetime
 
-source_dir = 'source'
-add_source = os.path.join(source_dir, 'additional_packages')
+source_dir = "source"
+add_source = os.path.join(source_dir, "additional_packages")
 
 sys.path.insert(0, source_dir)
 sys.path.insert(1, add_source)
@@ -34,21 +37,25 @@ from mutils import json  # NOQA: E402
 # import matplotlib.pyplot as plt
 
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
 
 
 def get_parser():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-    parser = ArgumentParser(description=__doc__,
-                            formatter_class=ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument("--gpus", type=str,
-                        help="gpus to use")
+    parser = ArgumentParser(
+        description=__doc__, formatter_class=ArgumentDefaultsHelpFormatter
+    )
 
-    parser.add_argument('--wait', type=int,
-                        help="Wait till gpus are available.")
+    parser.add_argument("--gpus", type=str, help="gpus to use")
+
+    parser.add_argument(
+        "--wait", type=int, help="Wait till gpus are available."
+    )
 
     # parser.add_argument('--compare', action='store_true')
     # parser.add_argument('--embed', action='store_true')
@@ -62,28 +69,33 @@ def main(args):
 
     pvutils.set_gpus_to_use(args)
 
-    logdir = '.'
+    logdir = "."
     logdir = os.path.realpath(logdir)
-    config_file = os.path.join(logdir, 'config.json')
-    main_script = os.path.join(logdir, 'model.py')
+    config_file = os.path.join(logdir, "config.json")
+    main_script = os.path.join(logdir, "model.py")
 
     logging.info("Loading Config file: {}".format(config_file))
     config = json.load(config_file)
 
     # Create an output log file
-    logfile = os.path.join(logdir, 'output.log')
+    logfile = os.path.join(logdir, "output.log")
     logging.info("All output will be written to: {}".format(logfile))
-    pvutils.create_filewrite_handler(logfile, mode='a')
+    pvutils.create_filewrite_handler(logfile, mode="a")
 
     if args.wait is not None:
         import GPUtil
+
         gpu_id = args.wait
         while GPUtil.getGPUs()[gpu_id].memoryUtil > 0.2:
             logging.info("GPU {} is beeing used.".format(gpu_id))
             GPUtil.showUtilization()
             sleep(60)
 
-    m = imp.load_source('model', main_script)
+    # m = imp.load_source("model", main_script)
+
+    spec = importlib.util.spec_from_file_location("model", main_script)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
 
     model = m.create_pyvision_model(conf=config, logdir=logdir)
     model.load_from_logdir()
@@ -93,7 +105,8 @@ def main(args):
     end_time = (time.time() - start_time) / 3600
     logging.info("Finished training in {} hours".format(end_time))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     args = get_parser().parse_args()
     main(args)
 
