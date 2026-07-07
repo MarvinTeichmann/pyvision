@@ -31,7 +31,7 @@ logging.basicConfig(
 )
 
 
-def save_dict_to_hdf5(filename, data, compression_level=6):
+def save_dict_to_hdf5(filename, data, compression="gzip", compression_level=3):
     """
     Save a nested dictionary containing numpy arrays to an HDF5 file.
 
@@ -41,20 +41,24 @@ def save_dict_to_hdf5(filename, data, compression_level=6):
     - compression_level: Integer from 0 (no compression) to 9 (maximum compression).
     """
     with h5py.File(filename, "w") as f:
-        _write_group(f, data, compression_level)
+        _write_group(f, data, compression_level, compression=compression)
 
 
-def _write_group(h5file, dictionary, compression_level):
+def _write_group(h5file, dictionary, compression_level, compression):
+    if compression != "gzip":
+        compression_level = None
     for key, value in dictionary.items():
         if isinstance(value, dict):
             grp = h5file.create_group(key)
-            _write_group(grp, value, compression_level)
+            _write_group(
+                grp, value, compression_level, compression=compression
+            )
         else:
             try:
                 h5file.create_dataset(
                     key,
                     data=value,
-                    compression="gzip",
+                    compression=compression,
                     compression_opts=compression_level,
                 )
             except TypeError:

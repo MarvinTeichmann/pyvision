@@ -6,4 +6,4 @@ commentjson>=0.6
 pandas
 ipdb
 ipython
-deepdish
+# deepdish

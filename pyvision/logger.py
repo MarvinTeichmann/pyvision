@@ -15,10 +15,18 @@ import numpy as np
 import scipy as scp
 
 import warnings
-import deepdish as dd
+
+# import deepdish as dd
 
 import logging
-from tables.exceptions import NaturalNameWarning
+
+try:
+    from tables.exceptions import NaturalNameWarning
+except ImportError:
+
+    class NaturalNameWarning(Warning):
+        pass
+
 
 import pickle
 
